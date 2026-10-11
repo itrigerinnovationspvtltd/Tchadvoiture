@@ -1,6 +1,7 @@
 const ACCESS = 'tchad_access'
 const REFRESH = 'tchad_refresh'
-const API_BASE = (import.meta.env.VITE_API_URL ?? '').replace(/\/$/, '')
+const configuredBase = (import.meta.env.VITE_API_URL ?? '').replace(/\/$/, '')
+const API_BASE = configuredBase || (import.meta.env.PROD ? 'https://tchadvoiture.onrender.com' : '')
 
 export function apiUrl(path: string) {
   if (!path.startsWith('/')) return path
@@ -86,10 +87,20 @@ export async function api<T>(
     if (ok) response = await send(getAccess())
   }
 
-  const data = (await response.json().catch(() => ({}))) as { error?: string }
+  const data = await readJson(response)
   if (!response.ok) {
     if (response.status === 401) clearTokens()
     throw new Error(data.error || 'Something went wrong.')
   }
   return data as T
+}
+
+async function readJson(response: Response) {
+  const text = await response.text()
+  if (!text) return {}
+  try {
+    return JSON.parse(text) as { error?: string }
+  } catch {
+    throw new Error('The server did not return JSON.')
+  }
 }

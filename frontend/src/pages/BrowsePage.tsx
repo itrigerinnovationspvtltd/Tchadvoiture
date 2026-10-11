@@ -227,14 +227,14 @@ export function BrowsePage() {
         <OptionList
           value={params.get('vehicleTypeId') ?? ''}
           onChange={(value) => setParam('vehicleTypeId', value)}
-          options={catalog.data?.vehicleTypes.map((item) => ({ value: item.id, label: item.name })) ?? []}
+          options={catalog.data?.vehicleTypes?.map((item) => ({ value: item.id, label: item.name })) ?? []}
         />
       </FilterSection>
       <FilterSection title="Brand" icon={<Tag className="size-4" />} active={Boolean(makeId || params.get('modelId'))}>
         <OptionList
           value={makeId}
           onChange={(value) => setParam('makeId', value)}
-          options={catalog.data?.makes.map((make) => ({ value: make.id, label: make.name })) ?? []}
+          options={catalog.data?.makes?.map((make) => ({ value: make.id, label: make.name })) ?? []}
         />
         {makeId ? (
           <div className="mt-3">
@@ -251,7 +251,7 @@ export function BrowsePage() {
         <OptionList
           value={params.get('fuelTypeId') ?? ''}
           onChange={(value) => setParam('fuelTypeId', value)}
-          options={catalog.data?.fuels.map((item) => ({ value: item.id, label: item.name })) ?? []}
+          options={catalog.data?.fuels?.map((item) => ({ value: item.id, label: item.name })) ?? []}
         />
       </FilterSection>
       <FilterSection title="Mileage" icon={<Gauge className="size-4" />} active={Boolean(params.get('minKm') || params.get('maxKm'))}>
@@ -266,7 +266,7 @@ export function BrowsePage() {
         <OptionList
           value={params.get('transmissionId') ?? ''}
           onChange={(value) => setParam('transmissionId', value)}
-          options={catalog.data?.transmissions.map((item) => ({ value: item.id, label: item.name })) ?? []}
+          options={catalog.data?.transmissions?.map((item) => ({ value: item.id, label: item.name })) ?? []}
         />
       </FilterSection>
       <FilterSection title="Year" icon={<Calendar className="size-4" />} active={Boolean(params.get('minYear') || params.get('maxYear'))}>
@@ -290,7 +290,7 @@ export function BrowsePage() {
         <OptionList
           value={params.get('condition') ?? ''}
           onChange={(value) => setParam('condition', value)}
-          options={catalog.data?.conditions.map((condition) => ({ value: condition, label: condition })) ?? []}
+          options={catalog.data?.conditions?.map((condition) => ({ value: condition, label: condition })) ?? []}
         />
       </FilterSection>
       <FilterSection title="Seller type" icon={<User className="size-4" />} active={Boolean(params.get('sellerType'))}>
@@ -399,7 +399,7 @@ export function BrowsePage() {
             <p className="rounded-2xl border border-dashed border-border bg-card px-4 py-12 text-center text-muted-foreground">No cars match these filters.</p>
           ) : null}
           <div className="space-y-4">
-            {listings.data?.items.map((vehicle) => <BrowseCarCard key={vehicle.id} vehicle={vehicle} />)}
+            {listings.data?.items?.map((vehicle) => <BrowseCarCard key={vehicle.id} vehicle={vehicle} />)}
           </div>
           {listings.data && listings.data.pages > 1 ? (
             <div className="mt-6 flex items-center justify-center gap-3">

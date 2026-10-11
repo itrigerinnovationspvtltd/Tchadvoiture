@@ -229,7 +229,7 @@ export function ListingFormPage() {
             label="Brand"
             value={draft.makeId}
             onValueChange={(value) => { update('makeId', value); update('modelId', '') }}
-            options={catalog.data?.makes.map((make) => ({ value: make.id, label: make.name })) ?? []}
+            options={catalog.data?.makes?.map((make) => ({ value: make.id, label: make.name })) ?? []}
           />
           <Choice
             label="Model"
@@ -243,7 +243,7 @@ export function ListingFormPage() {
             label="Vehicle type"
             value={draft.vehicleTypeId}
             onValueChange={(value) => update('vehicleTypeId', value)}
-            options={catalog.data?.vehicleTypes.map((item) => ({ value: item.id, label: item.name })) ?? []}
+            options={catalog.data?.vehicleTypes?.map((item) => ({ value: item.id, label: item.name })) ?? []}
           />
           <FormField label="Manufacturing year"><Input className="h-10" inputMode="numeric" value={draft.manufacturingYear} onChange={(event) => update('manufacturingYear', event.target.value)} /></FormField>
           <FormField label="Registration year"><Input className="h-10" inputMode="numeric" value={draft.registrationYear} onChange={(event) => update('registrationYear', event.target.value)} /></FormField>
@@ -261,13 +261,13 @@ export function ListingFormPage() {
             label="Fuel"
             value={draft.fuelTypeId}
             onValueChange={(value) => update('fuelTypeId', value)}
-            options={catalog.data?.fuels.map((item) => ({ value: item.id, label: item.name })) ?? []}
+            options={catalog.data?.fuels?.map((item) => ({ value: item.id, label: item.name })) ?? []}
           />
           <Choice
             label="Transmission"
             value={draft.transmissionId}
             onValueChange={(value) => update('transmissionId', value)}
-            options={catalog.data?.transmissions.map((item) => ({ value: item.id, label: item.name })) ?? []}
+            options={catalog.data?.transmissions?.map((item) => ({ value: item.id, label: item.name })) ?? []}
           />
           <FormField label="Kilometers"><Input className="h-10" inputMode="numeric" value={draft.kilometers} onChange={(event) => update('kilometers', event.target.value)} /></FormField>
           <FormField label="Owners"><Input className="h-10" inputMode="numeric" value={draft.owners} onChange={(event) => update('owners', event.target.value)} /></FormField>
@@ -275,7 +275,7 @@ export function ListingFormPage() {
             label="Condition"
             value={draft.condition}
             onValueChange={(value) => update('condition', value)}
-            options={catalog.data?.conditions.map((condition) => ({ value: condition, label: condition })) ?? []}
+            options={catalog.data?.conditions?.map((condition) => ({ value: condition, label: condition })) ?? []}
           />
           <label className="flex items-end gap-2 pb-3 text-sm font-medium">
             <Checkbox checked={draft.insured} onCheckedChange={(checked) => update('insured', checked === true)} /> Insured

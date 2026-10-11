@@ -57,7 +57,15 @@ export async function api<T>(path: string, options: { method?: string; body?: un
     const ok = await refreshSession()
     if (ok) response = await send(getAccess())
   }
-  const data = (await response.json().catch(() => ({}))) as { error?: string }
+  const text = await response.text()
+  let data: { error?: string } = {}
+  if (text) {
+    try {
+      data = JSON.parse(text) as { error?: string }
+    } catch {
+      throw new Error('The server did not return JSON.')
+    }
+  }
   if (!response.ok) {
     if (response.status === 401) clearTokens()
     throw new Error(data.error || 'Something went wrong.')

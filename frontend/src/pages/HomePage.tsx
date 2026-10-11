@@ -154,7 +154,7 @@ export function HomePage() {
             </SelectTrigger>
             <SelectContent>
               <SelectItem value="__any__">Any brand</SelectItem>
-              {catalog.data?.makes.map((make) => (
+              {catalog.data?.makes?.map((make) => (
                 <SelectItem key={make.id} value={make.id}>{make.name}</SelectItem>
               ))}
             </SelectContent>
