@@ -1,3 +1,4 @@
+import { assetUrl } from '@/lib/api'
 import { cn } from '@/lib/utils'
 
 /** Shared 16:10 listing photo frame — prevents portrait uploads from breaking grids. */
@@ -16,7 +17,7 @@ export function VehiclePhoto({
     <div className={cn('relative w-full shrink-0 overflow-hidden bg-muted', aspectClassName, className)}>
       {src ? (
         <img
-          src={src}
+          src={assetUrl(src)}
           alt={alt}
           loading="lazy"
           decoding="async"

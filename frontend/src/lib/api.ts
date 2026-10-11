@@ -1,5 +1,18 @@
 const ACCESS = 'tchad_access'
 const REFRESH = 'tchad_refresh'
+const API_BASE = (import.meta.env.VITE_API_URL ?? '').replace(/\/$/, '')
+
+export function apiUrl(path: string) {
+  if (!path.startsWith('/')) return path
+  return `${API_BASE}${path}`
+}
+
+export function assetUrl(src?: string) {
+  if (!src) return src
+  if (/^(https?:|blob:|data:)/.test(src)) return src
+  if (src.startsWith('/')) return apiUrl(src)
+  return src
+}
 
 export function getAccess() {
   return localStorage.getItem(ACCESS)
@@ -25,7 +38,7 @@ async function refreshSession() {
   const refreshToken = getRefresh()
   if (!refreshToken) return false
   if (!refreshing) {
-    refreshing = fetch('/api/auth/refresh', {
+    refreshing = fetch(apiUrl('/api/auth/refresh'), {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ refreshToken }),
@@ -60,7 +73,7 @@ export async function api<T>(
     const headers: Record<string, string> = {}
     if (body !== undefined && !formData) headers['Content-Type'] = 'application/json'
     if (auth && token) headers.Authorization = `Bearer ${token}`
-    return fetch(path, {
+    return fetch(apiUrl(path), {
       method,
       headers,
       body: formData ?? (body !== undefined ? JSON.stringify(body) : undefined),

@@ -1,3 +1,5 @@
+import { apiUrl } from '@/lib/api'
+
 const ACCESS = 'admin_access'
 const REFRESH = 'admin_refresh'
 
@@ -21,7 +23,7 @@ async function refreshSession() {
   const refreshToken = localStorage.getItem(REFRESH)
   if (!refreshToken) return false
   if (!refreshing) {
-    refreshing = fetch('/api/admin/auth/refresh', {
+    refreshing = fetch(apiUrl('/api/admin/auth/refresh'), {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ refreshToken }),
@@ -48,7 +50,7 @@ export async function api<T>(path: string, options: { method?: string; body?: un
     const headers: Record<string, string> = {}
     if (body !== undefined) headers['Content-Type'] = 'application/json'
     if (auth && token) headers.Authorization = `Bearer ${token}`
-    return fetch(path, { method, headers, body: body !== undefined ? JSON.stringify(body) : undefined })
+    return fetch(apiUrl(path), { method, headers, body: body !== undefined ? JSON.stringify(body) : undefined })
   }
   let response = await send(auth ? getAccess() : null)
   if (response.status === 401 && auth && localStorage.getItem(REFRESH)) {

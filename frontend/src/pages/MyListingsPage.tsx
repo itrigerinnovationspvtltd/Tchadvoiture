@@ -1,7 +1,7 @@
 import { Link } from 'react-router-dom'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { Badge, Button, Card, CardContent, Skeleton, statusBadgeClass } from '@/components/ui'
-import { api } from '../lib/api'
+import { api, assetUrl } from '../lib/api'
 import { formatPrice } from '../lib/format'
 import { useSettings } from '../lib/hooks'
 import type { Vehicle } from '../lib/types'
@@ -44,7 +44,7 @@ export function MyListingsPage() {
         {vehicles.length === 0 ? <p className="rounded-2xl border border-dashed border-border px-4 py-10 text-center text-muted-foreground">You have not listed a car yet.</p> : null}
         {vehicles.map((vehicle) => (
           <Card key={vehicle.id} className="sm:flex-row">
-            {vehicle.images[0] ? <img src={vehicle.images[0].url} alt={vehicle.title} className="h-28 w-full object-cover sm:w-40" /> : <div className="h-28 bg-muted sm:w-40" />}
+            {vehicle.images[0] ? <img src={assetUrl(vehicle.images[0].url)} alt={vehicle.title} className="h-28 w-full object-cover sm:w-40" /> : <div className="h-28 bg-muted sm:w-40" />}
             <CardContent className="flex-1">
               <div className="flex flex-wrap items-center gap-2">
                 <h2 className="font-semibold">{vehicle.title}</h2>

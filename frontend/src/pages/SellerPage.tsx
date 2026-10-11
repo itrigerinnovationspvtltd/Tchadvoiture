@@ -2,7 +2,7 @@ import { Link, useParams } from 'react-router-dom'
 import { useQuery } from '@tanstack/react-query'
 import { CarCard } from '../components/CarCard'
 import { Alert, AlertDescription, Card, CardContent, Skeleton } from '@/components/ui'
-import { api } from '../lib/api'
+import { api, assetUrl } from '../lib/api'
 import { errorMessage, sellerLabel } from '../lib/format'
 import type { PublicSeller, Vehicle } from '../lib/types'
 
@@ -23,7 +23,7 @@ export function SellerPage() {
     <div className="space-y-8">
       <Card>
         <CardContent className="flex flex-col gap-4 sm:flex-row sm:items-center">
-        {photo ? <img src={photo} alt="" className="h-20 w-20 rounded-full object-cover" /> : <div className="flex h-20 w-20 items-center justify-center rounded-full bg-primary/10 font-bold text-primary">{title.slice(0, 1)}</div>}
+        {photo ? <img src={assetUrl(photo)} alt="" className="h-20 w-20 rounded-full object-cover" /> : <div className="flex h-20 w-20 items-center justify-center rounded-full bg-primary/10 font-bold text-primary">{title.slice(0, 1)}</div>}
         <div>
           <p className="text-xs font-semibold uppercase tracking-wide text-neutral-500">{seller.role === 'dealer' ? 'Dealer' : 'Individual seller'}</p>
           <h1 className="text-2xl font-bold">{title}</h1>

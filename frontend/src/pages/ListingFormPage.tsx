@@ -47,7 +47,7 @@ function Choice({
     </FormField>
   )
 }
-import { api } from '../lib/api'
+import { api, assetUrl } from '../lib/api'
 import { errorMessage, formatPrice } from '../lib/format'
 import { useCatalog, useSettings } from '../lib/hooks'
 import type { Vehicle, VehicleImage } from '../lib/types'
@@ -321,7 +321,7 @@ export function ListingFormPage() {
           <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
             {draft.images.map((image) => (
               <div key={image.filename} className="overflow-hidden rounded-xl border border-neutral-200">
-                <img src={image.url} alt="" className="aspect-[4/3] w-full object-cover" />
+                <img src={assetUrl(image.url)} alt="" className="aspect-[4/3] w-full object-cover" />
                 <Button variant="destructive" className="w-full rounded-none" type="button" onClick={() => update('images', draft.images.filter((item) => item.filename !== image.filename))}>Remove</Button>
               </div>
             ))}

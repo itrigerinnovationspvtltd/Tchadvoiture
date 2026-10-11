@@ -2,6 +2,7 @@ import { useState } from 'react'
 import { Link, useParams } from 'react-router-dom'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { Alert, AlertDescription, Badge, Button, Card, CardContent, Input, Label, Skeleton, Textarea, statusBadgeClass } from '@/components/ui'
+import { assetUrl } from '@/lib/api'
 import { api } from '../lib/api'
 
 type Vehicle = {
@@ -70,7 +71,7 @@ export function VehicleReviewPage() {
       {error ? <Alert variant="destructive"><AlertDescription>{error}</AlertDescription></Alert> : null}
       {vehicle.rejectionReason ? <p className="text-sm text-red-700">Rejection reason: {vehicle.rejectionReason}</p> : null}
       <div className="flex gap-2 overflow-x-auto">
-        {vehicle.images.map((image) => <img key={image.url} src={image.url} alt="" className="h-28 w-40 rounded-xl object-cover" />)}
+        {vehicle.images.map((image) => <img key={image.url} src={assetUrl(image.url)} alt="" className="h-28 w-40 rounded-xl object-cover" />)}
       </div>
       <p className="text-sm text-neutral-700">
         {vehicle.makeName} {vehicle.modelName} · {vehicle.fuelName} · {vehicle.transmissionName} · {vehicle.vehicleTypeName} · {vehicle.owners} owners · {vehicle.condition}

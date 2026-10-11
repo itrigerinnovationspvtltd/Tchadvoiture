@@ -13,12 +13,20 @@ export function createApp() {
 
   app.use(helmet({ crossOriginResourcePolicy: { policy: 'cross-origin' } }));
 
-  const origins = [process.env.CLIENT_ORIGIN, process.env.ADMIN_ORIGIN].filter(Boolean);
+  const origins = [process.env.CLIENT_ORIGIN, process.env.ADMIN_ORIGIN, process.env.ALLOWED_ORIGINS]
+    .filter(Boolean)
+    .flatMap((value) => String(value).split(','))
+    .map((value) => value.trim().replace(/\/$/, ''))
+    .filter(Boolean);
   app.use(
     cors({
       origin(origin, callback) {
-        if (!origin || origins.includes(origin)) callback(null, true);
-        else callback(new Error('Not allowed by CORS'));
+        if (!origin) {
+          callback(null, true);
+          return;
+        }
+        const allowed = origins.includes(origin.replace(/\/$/, ''));
+        callback(null, allowed);
       },
     }),
   );

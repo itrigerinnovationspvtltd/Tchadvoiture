@@ -4,7 +4,7 @@ import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { Calendar, Fuel, Gauge, Heart, Share2 } from 'lucide-react'
 import { cn } from '@/lib/utils'
 import { Alert, AlertDescription, Badge, Button, Card, CardContent, CardDescription, CardHeader, CardTitle, Skeleton, Textarea, statusBadgeClass } from '@/components/ui'
-import { api } from '../lib/api'
+import { api, assetUrl } from '../lib/api'
 import { useAuth } from '../lib/auth'
 import { errorMessage, formatKm, formatPrice, sellerLabel } from '../lib/format'
 import { useSettings } from '../lib/hooks'
@@ -127,11 +127,11 @@ export function VehiclePage() {
       <section className="relative min-h-[28rem] overflow-hidden rounded-2xl bg-muted lg:min-h-[34rem]">
         {images.length > 1 ? (
           <div className="absolute inset-0 grid grid-cols-2">
-            <img src={left?.url} alt="" className="size-full object-cover" />
-            <img src={right?.url} alt="" className="size-full object-cover" />
+            <img src={assetUrl(left?.url)} alt="" className="size-full object-cover" />
+            <img src={assetUrl(right?.url)} alt="" className="size-full object-cover" />
           </div>
         ) : left ? (
-          <img src={left.url} alt="" className="absolute inset-0 size-full object-cover" />
+          <img src={assetUrl(left.url)} alt="" className="absolute inset-0 size-full object-cover" />
         ) : null}
         <div className="absolute inset-0 bg-charcoal/25" />
         <div className="relative z-10 flex min-h-[28rem] items-center justify-center p-4 lg:min-h-[34rem] lg:p-8">
@@ -193,7 +193,7 @@ export function VehiclePage() {
               onClick={() => setPhoto(index)}
               className={cn('h-16 w-24 overflow-hidden p-0', photo === index && 'border-primary')}
             >
-              <img src={image.url} alt="" className="h-full w-full object-cover" />
+              <img src={assetUrl(image.url)} alt="" className="h-full w-full object-cover" />
             </Button>
           ))}
         </div>
