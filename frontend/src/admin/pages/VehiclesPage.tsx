@@ -1,8 +1,9 @@
 import { useState } from 'react'
 import { Link, useSearchParams } from 'react-router-dom'
-import { useQuery } from '@tanstack/react-query'
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import {
-  Badge,
+  Alert,
+  AlertDescription,
   Button,
   Input,
   Select,
@@ -16,7 +17,6 @@ import {
   TableHead,
   TableHeader,
   TableRow,
-  statusBadgeClass,
 } from '@/components/ui'
 import { cn } from '@/lib/utils'
 import { api } from '../lib/api'
@@ -28,16 +28,47 @@ import { TableSkeletonRows } from '../components/TableSkeletonRows'
 
 type Vehicle = { id: string; title: string; status: string; price: number; location: string; seller: { name?: string; dealershipName?: string; email?: string } }
 type Page = { items: Vehicle[]; total: number; page: number; pages: number }
+const STATUSES = ['pending', 'active', 'rejected', 'inactive', 'sold']
 
 export function VehiclesPage() {
   const [params, setParams] = useSearchParams()
   const [q, setQ] = useState(params.get('q') ?? '')
+  const [error, setError] = useState('')
+  const queryClient = useQueryClient()
   const status = params.get('status') ?? ''
   const query = params.toString()
   const vehicles = useQuery({
     queryKey: ['admin-vehicles', query],
     queryFn: () => api<Page>(`/api/admin/vehicles?${query}`),
   })
+  const moderate = useMutation({
+    mutationFn: ({ id, action, reason }: { id: string; action: string; reason?: string }) =>
+      api(`/api/admin/vehicles/${id}/moderate`, { method: 'POST', body: { action, reason } }),
+    onSuccess: () => {
+      setError('')
+      void queryClient.invalidateQueries({ queryKey: ['admin-vehicles'] })
+    },
+    onError: (err) => setError(err instanceof Error ? err.message : 'Could not update the status.'),
+  })
+
+  function changeStatus(vehicle: Vehicle, next: string) {
+    if (next === vehicle.status) return
+    if (next === 'pending') {
+      setError('The seller resubmits a rejected or inactive listing.')
+      return
+    }
+    if (next === 'rejected') {
+      const reason = window.prompt('Rejection reason')?.trim()
+      if (!reason) {
+        setError('A rejection reason is required.')
+        return
+      }
+      moderate.mutate({ id: vehicle.id, action: 'reject', reason })
+      return
+    }
+    const action = next === 'active' ? (vehicle.status === 'pending' ? 'approve' : 'activate') : next === 'inactive' ? 'deactivate' : 'sold'
+    moderate.mutate({ id: vehicle.id, action })
+  }
 
   function update(key: string, value: string) {
     const next = new URLSearchParams(params)
@@ -94,6 +125,7 @@ export function VehiclesPage() {
           {params.get('reported') === 'true' ? 'Show all' : 'Reported only'}
         </Button>
       </AdminToolbar>
+      {error ? <Alert variant="destructive" className="mb-4"><AlertDescription>{error}</AlertDescription></Alert> : null}
       <AdminDataTable className="mt-4">
         <Table>
         <TableHeader>
@@ -115,7 +147,20 @@ export function VehiclesPage() {
               <TableCell>{vehicle.seller.dealershipName || vehicle.seller.name}</TableCell>
               <TableCell>{vehicle.price}</TableCell>
               <TableCell>
-                <Badge variant="outline" className={statusBadgeClass(vehicle.status)}>{vehicle.status}</Badge>
+                <Select
+                  value={vehicle.status}
+                  disabled={moderate.isPending && moderate.variables?.id === vehicle.id}
+                  onValueChange={(next) => changeStatus(vehicle, next)}
+                >
+                  <SelectTrigger className={cn(adminSelectTriggerClass, 'w-36 capitalize')} aria-label={`Status for ${vehicle.title}`}>
+                    {moderate.isPending && moderate.variables?.id === vehicle.id ? <span>Saving…</span> : <SelectValue />}
+                  </SelectTrigger>
+                  <SelectContent>
+                    {STATUSES.map((item) => (
+                      <SelectItem key={item} value={item} className="capitalize">{item}</SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
               </TableCell>
             </TableRow>
           )) : null}

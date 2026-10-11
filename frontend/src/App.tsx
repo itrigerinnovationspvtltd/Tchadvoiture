@@ -16,6 +16,7 @@ import { SellerPage } from './pages/SellerPage'
 import { SignupPage } from './pages/SignupPage'
 import { StaticPage } from './pages/StaticPage'
 import { VehiclePage } from './pages/VehiclePage'
+import { VehicleSpecsPage } from './pages/VehicleSpecsPage'
 import { WishlistPage } from './pages/WishlistPage'
 
 const AdminApp = lazy(() => import('./admin/AdminApp.tsx'))
@@ -52,6 +53,7 @@ export default function App() {
         <Route path="/" element={<HomePage />} />
         <Route path="/cars" element={<BrowsePage />} />
         <Route path="/compare" element={<ComparePage />} />
+        <Route path="/cars/:id/specifications" element={<VehicleSpecsPage />} />
         <Route path="/cars/:id" element={<VehiclePage />} />
         <Route path="/sellers/:id" element={<SellerPage />} />
         <Route path="/login" element={<LoginPage />} />

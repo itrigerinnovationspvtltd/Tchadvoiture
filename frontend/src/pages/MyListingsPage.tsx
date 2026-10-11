@@ -52,6 +52,7 @@ export function MyListingsPage() {
               </div>
               <p className="text-primary font-bold">{formatPrice(vehicle.price, settings.data?.currencyLabel)}</p>
               <p className="text-sm text-muted-foreground">{vehicle.location}</p>
+              {vehicle.status === 'pending' ? <p className="mt-2 text-sm text-muted-foreground">Waiting for admin approval.</p> : null}
               {vehicle.rejectionReason ? <p className="mt-2 text-sm text-red-700">Rejected: {vehicle.rejectionReason}</p> : null}
               <div className="mt-3 flex flex-wrap gap-2">
                 {vehicle.status !== 'sold' ? <Button variant="outline" asChild><Link to={`/my-listings/${vehicle.id}/edit`}>Edit</Link></Button> : null}

@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react'
 import { Link, useNavigate, useParams } from 'react-router-dom'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
-import { Calendar, Fuel, Gauge, Heart, Share2 } from 'lucide-react'
+import { Calendar, ChevronRight, Fuel, Gauge, Heart, Share2 } from 'lucide-react'
 import { cn } from '@/lib/utils'
 import { Alert, AlertDescription, Badge, Button, Card, CardContent, CardDescription, CardHeader, CardTitle, Skeleton, Textarea, statusBadgeClass } from '@/components/ui'
 import { api, assetUrl } from '../lib/api'
@@ -13,21 +13,15 @@ import { rememberVehicle } from '../lib/recentlyViewed'
 import { useCompareIds } from '../lib/compare'
 import { CompareToggle } from '../components/CompareControls'
 
-function specCells(vehicle: Vehicle) {
-  const built: [string, string][] = [
+function highlightSpecs(vehicle: Vehicle): [string, string][] {
+  return [
     ['Kilometers', formatKm(vehicle.kilometers)],
     ['Transmission', vehicle.transmissionName || '—'],
     ['Body type', vehicle.vehicleTypeName || '—'],
     ['Fuel', vehicle.fuelName || '—'],
     ['Owners', vehicle.owners === 1 ? '1 owner' : `${vehicle.owners} owners`],
     ['Condition', vehicle.condition || '—'],
-    ['Color', vehicle.color || '—'],
-    ['Insurance', vehicle.insured ? `Yes${vehicle.insuranceExpiry ? `, until ${vehicle.insuranceExpiry}` : ''}` : 'No'],
   ]
-  const extra = vehicle.specs
-    .filter((spec) => spec.label && spec.value)
-    .map((spec) => [spec.label, spec.value] as [string, string])
-  return [...built, ...extra]
 }
 
 export function VehiclePage() {
@@ -202,13 +196,22 @@ export function VehiclePage() {
       <section className="mt-8 rounded-2xl bg-charcoal px-4 py-10 text-white sm:px-8" aria-labelledby="specs-heading">
         <h2 id="specs-heading" className="text-center text-2xl font-bold">{heading} specifications</h2>
         <dl className="mt-8 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-          {specCells(vehicle).map(([label, value]) => (
-            <div key={`${label}-${value}`} className="rounded-xl bg-white/10 p-4">
+          {highlightSpecs(vehicle).map(([label, value]) => (
+            <div key={label} className="rounded-xl bg-white/10 p-4">
               <dt className="text-sm text-white/70">{label}</dt>
               <dd className="mt-2 text-lg font-semibold">{value}</dd>
             </div>
           ))}
         </dl>
+        <div className="mt-8 text-center">
+          <Link
+            to={`/cars/${vehicle.id}/specifications`}
+            className="inline-flex cursor-pointer items-center gap-1 text-sm font-semibold text-white hover:underline focus-visible:rounded-sm focus-visible:ring-2 focus-visible:ring-white"
+          >
+            View all specifications
+            <ChevronRight className="size-4" aria-hidden />
+          </Link>
+        </div>
       </section>
 
       <div className="mt-8 grid gap-4 lg:grid-cols-[1fr_1fr]">

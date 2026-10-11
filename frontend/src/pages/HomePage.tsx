@@ -1,12 +1,12 @@
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import type { FormEvent } from 'react'
 import { useQuery } from '@tanstack/react-query'
 import { Link, useNavigate } from 'react-router-dom'
-import { BadgeCheck, Car, MessageSquare, Search, SearchCheck, Truck, Users, type LucideIcon } from 'lucide-react'
+import { BadgeCheck, Car, ChevronLeft, ChevronRight, MessageSquare, Search, SearchCheck, Truck, Users, type LucideIcon } from 'lucide-react'
 import { CarCard } from '../components/CarCard'
 import { PageSection } from '../components/PageSection'
-import { Button, Card, CardContent, Input, Select, SelectContent, SelectItem, SelectTrigger, SelectValue, Skeleton } from '@/components/ui'
-import { api } from '../lib/api'
+import { Accordion, AccordionContent, AccordionItem, AccordionTrigger, Button, Card, CardContent, Input, Select, SelectContent, SelectItem, SelectTrigger, SelectValue, Skeleton } from '@/components/ui'
+import { api, assetUrl } from '../lib/api'
 import { useAuth } from '../lib/auth'
 import { useCatalog } from '../lib/hooks'
 import type { Paged, Vehicle } from '../lib/types'
@@ -32,6 +32,29 @@ const trust = [
     icon: Users,
     title: 'Dealers and individuals',
     text: 'Buy from a dealership or a private owner, with the seller type shown.',
+  },
+]
+
+const faqs = [
+  {
+    question: 'When does my listing appear in search?',
+    answer: 'A new listing stays pending until an admin approves it. Until then it is not public, and My listings shows that it is waiting for approval.',
+  },
+  {
+    question: 'How do I contact a seller?',
+    answer: 'Open the car and send an enquiry. The seller’s phone stays off the public page. They see your name and phone and reply in Enquiries.',
+  },
+  {
+    question: 'How many cars can I list?',
+    answer: 'Individual sellers have a limit on pending and active cars. That limit is shown when you list a car. Dealers are not limited.',
+  },
+  {
+    question: 'What if my listing is rejected or I take it down?',
+    answer: 'You can resubmit a rejected or inactive listing. An active listing can be deactivated or marked sold from My listings.',
+  },
+  {
+    question: 'Who can see my plate and insurance numbers?',
+    answer: 'They stay private. Buyers do not see them on the car page. Only you and an admin can.',
   },
 ]
 
@@ -107,6 +130,8 @@ export function HomePage() {
   const [location, setLocation] = useState('')
   const [sort, setSort] = useState<'newest' | 'price_asc'>('newest')
   const [pickedTypeId, setPickedTypeId] = useState('')
+  const [slide, setSlide] = useState(0)
+  const [brokenPhotos, setBrokenPhotos] = useState<string[]>([])
   const types = catalog.data?.vehicleTypes ?? []
   const selectedType = types.find((type) => type.id === pickedTypeId) ?? types[0]
   const listings = useQuery({
@@ -119,6 +144,42 @@ export function HomePage() {
     queryFn: () => api<Paged<Vehicle>>(`/api/vehicles?limit=4&vehicleTypeId=${selectedType?.id}`),
   })
   const sellHref = user && user.role !== 'buyer' ? '/my-listings/new' : '/signup'
+  const featured = listings.data?.items ?? []
+  const photoUrls = featured.flatMap((vehicle) => (vehicle.images[0]?.url ? [vehicle.images[0].url] : []))
+  const usablePhotos = photoUrls.filter((url) => !brokenPhotos.includes(url))
+  const buyPhoto = usablePhotos[0]
+  const sellPhoto = usablePhotos[1]
+  const benefitPhotos = photoUrls
+  const filters = [
+    { label: 'Under 5,000,000', to: '/cars?maxPrice=5000000' },
+    { label: 'Under 10,000,000', to: '/cars?maxPrice=10000000' },
+    ...(catalog.data?.makes ?? []).map((make) => ({ label: make.name, to: `/cars?makeId=${make.id}` })),
+    { label: '2024 and newer', to: '/cars?minYear=2024' },
+    { label: '2022 and newer', to: '/cars?minYear=2022' },
+    { label: '2020 and newer', to: '/cars?minYear=2020' },
+    ...(catalog.data?.fuels ?? []).map((fuel) => ({ label: fuel.name, to: `/cars?fuelTypeId=${fuel.id}` })),
+    { label: 'Under 50,000 km', to: '/cars?maxKm=50000' },
+    { label: 'Under 100,000 km', to: '/cars?maxKm=100000' },
+    ...(catalog.data?.vehicleTypes ?? []).map((type) => ({ label: type.name, to: `/cars?vehicleTypeId=${type.id}` })),
+    ...(catalog.data?.transmissions ?? []).map((item) => ({ label: item.name, to: `/cars?transmissionId=${item.id}` })),
+  ]
+  const benefits = [
+    { title: trust[0].title, text: trust[0].text, href: '/cars', photo: benefitPhotos[2] ?? benefitPhotos[0] },
+    { title: trust[1].title, text: trust[1].text, href: '/cars', photo: benefitPhotos[3] ?? benefitPhotos[1] },
+    { title: trust[2].title, text: trust[2].text, href: sellHref, photo: benefitPhotos[4] ?? benefitPhotos[0] },
+  ]
+
+  useEffect(() => {
+    if (window.location.hash !== '#faq') return
+    document.getElementById('faq')?.scrollIntoView({ behavior: 'smooth' })
+  }, [])
+
+  useEffect(() => {
+    const media = window.matchMedia('(prefers-reduced-motion: reduce)')
+    if (media.matches) return
+    const timer = window.setInterval(() => setSlide((current) => (current + 1) % 2), 5000)
+    return () => window.clearInterval(timer)
+  }, [])
 
   function search(event: FormEvent) {
     event.preventDefault()
@@ -137,34 +198,130 @@ export function HomePage() {
 
   return (
     <div className="space-y-16">
-      <section className="hero-gradient rounded-3xl px-6 py-12 text-white shadow-xl ring-1 ring-white/20 sm:px-10">
-        <p className="text-sm font-semibold uppercase tracking-wide text-white/80">Used cars</p>
-        <h1 className="mt-2 max-w-2xl text-4xl font-bold sm:text-5xl">Find a car you can enquire about today</h1>
-        <p className="mt-3 max-w-xl text-white/90">
-          Search approved listings from dealers and individual sellers, then send a private enquiry.
-        </p>
-        <form
-          onSubmit={search}
-          className="mt-8 grid grid-cols-1 items-center gap-3 rounded-2xl bg-white p-4 text-charcoal shadow-lg sm:grid-cols-2 lg:grid-cols-[minmax(0,1fr)_11rem_11rem_auto]"
-        >
-          <Input className="h-11 min-w-0 sm:col-span-2 lg:col-span-1" value={q} onChange={(event) => setQ(event.target.value)} placeholder="Search make, model, or city" aria-label="Search" />
-          <Select value={makeId || '__any__'} onValueChange={(value) => setMakeId(value === '__any__' ? '' : value)}>
-            <SelectTrigger className="h-11 w-full min-w-0" aria-label="Brand">
-              <SelectValue placeholder="Any brand" />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="__any__">Any brand</SelectItem>
-              {catalog.data?.makes?.map((make) => (
-                <SelectItem key={make.id} value={make.id}>{make.name}</SelectItem>
+      <div>
+        <nav aria-label="Explore by" className="-mx-1 mb-4 flex gap-2 overflow-x-auto px-1 pb-1">
+          {filters.map((filter) => (
+            <Link
+              key={`${filter.label}-${filter.to}`}
+              to={filter.to}
+              className="shrink-0 cursor-pointer rounded-full border border-border bg-card px-3 py-2 text-sm font-medium text-charcoal transition-colors duration-200 hover:border-primary hover:text-primary focus-visible:ring-2 focus-visible:ring-ring focus-visible:outline-none"
+            >
+              {filter.label}
+            </Link>
+          ))}
+        </nav>
+
+        <div className="relative">
+          <section className="hero-gradient relative -mx-4 h-[420px] overflow-hidden text-white" aria-roledescription="carousel" aria-label="Highlights">
+            {slide === 0 && buyPhoto ? (
+              <img src={assetUrl(buyPhoto)} alt="" className="absolute inset-0 size-full object-cover" onError={() => setBrokenPhotos((current) => current.includes(buyPhoto) ? current : [...current, buyPhoto])} />
+            ) : null}
+            {slide === 1 && sellPhoto ? (
+              <img src={assetUrl(sellPhoto)} alt="" className="absolute inset-0 size-full object-cover" onError={() => setBrokenPhotos((current) => current.includes(sellPhoto) ? current : [...current, sellPhoto])} />
+            ) : null}
+            <div className="absolute inset-0 bg-gradient-to-r from-charcoal/80 via-charcoal/45 to-charcoal/10" />
+            {slide === 1 && !sellPhoto ? (
+              <div className="absolute inset-y-0 right-0 flex w-1/2 items-center justify-center">
+                <span className="flex size-40 items-center justify-center rounded-full bg-white/15 ring-1 ring-white/30">
+                  <Car className="size-20" aria-hidden />
+                </span>
+              </div>
+            ) : null}
+            <div className="relative flex h-full flex-col justify-start px-16 pt-10 sm:px-20 sm:pt-14">
+              <p className="text-sm font-semibold uppercase tracking-wide text-white/80">{slide === 0 ? 'Buy' : 'Sell'}</p>
+              <h1 className="mt-2 max-w-xl text-4xl font-bold sm:text-5xl">
+                {slide === 0 ? 'Approved cars, ready to enquire.' : 'List your car. It goes live after approval.'}
+              </h1>
+              <Button asChild className="mt-6 h-11 w-fit cursor-pointer bg-white text-primary hover:bg-white/90">
+                <Link to={slide === 0 ? '/cars' : sellHref}>{slide === 0 ? 'Browse cars' : user && user.role !== 'buyer' ? 'List a car' : 'Create an account'}</Link>
+              </Button>
+            </div>
+            <button
+              type="button"
+              aria-label="Previous banner"
+              onClick={() => setSlide((current) => (current + 1) % 2)}
+              className="absolute top-1/3 left-3 flex size-9 cursor-pointer items-center justify-center rounded-full bg-white/20 text-white transition-colors duration-200 hover:bg-white/30 focus-visible:ring-2 focus-visible:ring-white focus-visible:outline-none"
+            >
+              <ChevronLeft className="size-5" aria-hidden />
+            </button>
+            <button
+              type="button"
+              aria-label="Next banner"
+              onClick={() => setSlide((current) => (current + 1) % 2)}
+              className="absolute top-1/3 right-3 flex size-9 cursor-pointer items-center justify-center rounded-full bg-white/20 text-white transition-colors duration-200 hover:bg-white/30 focus-visible:ring-2 focus-visible:ring-white focus-visible:outline-none"
+            >
+              <ChevronRight className="size-5" aria-hidden />
+            </button>
+            <div className="absolute bottom-28 left-1/2 flex -translate-x-1/2 gap-2">
+              {[0, 1].map((index) => (
+                <button
+                  key={index}
+                  type="button"
+                  aria-label={index === 0 ? 'Show buy banner' : 'Show sell banner'}
+                  aria-current={slide === index ? 'true' : undefined}
+                  onClick={() => setSlide(index)}
+                  className={`size-2.5 cursor-pointer rounded-full transition-colors duration-200 focus-visible:ring-2 focus-visible:ring-white focus-visible:outline-none ${slide === index ? 'bg-white' : 'bg-white/40 hover:bg-white/70'}`}
+                />
               ))}
-            </SelectContent>
-          </Select>
-          <Input className="h-11 min-w-0" value={location} onChange={(event) => setLocation(event.target.value)} placeholder="City" aria-label="City" />
-          <Button type="submit" variant="cta" className="h-11 w-full px-4 sm:col-span-2 lg:col-span-1 lg:w-auto">
-            <Search className="h-5 w-5" /> Search
-          </Button>
-        </form>
-      </section>
+            </div>
+          </section>
+
+          <div className="relative z-10 -mt-20 px-2 sm:px-4">
+            <div className="rounded-2xl bg-card p-4 shadow-lg ring-1 ring-border sm:p-6">
+              <div className="flex justify-center gap-2">
+                <Button asChild className="h-11 cursor-pointer rounded-full px-6">
+                  <Link to="/cars">Buy car</Link>
+                </Button>
+                <Button asChild variant="outline" className="h-11 cursor-pointer rounded-full bg-secondary px-6">
+                  <Link to={sellHref}>Sell car</Link>
+                </Button>
+              </div>
+              <form
+                onSubmit={search}
+                className="mt-4 grid grid-cols-1 items-stretch gap-3 sm:grid-cols-2 lg:grid-cols-[minmax(0,1fr)_12rem_12rem_auto]"
+              >
+                <Input className="h-11 w-full min-w-0 text-sm sm:col-span-2 lg:col-span-1" value={q} onChange={(event) => setQ(event.target.value)} placeholder="Search make, model, or city" aria-label="Search" />
+                <Select value={makeId || '__any__'} onValueChange={(value) => setMakeId(value === '__any__' ? '' : value)}>
+                  <SelectTrigger className="h-11 w-full min-w-0 text-sm data-[size=default]:h-11" aria-label="Brand">
+                    <SelectValue placeholder="Any brand" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="__any__">Any brand</SelectItem>
+                    {catalog.data?.makes?.map((make) => (
+                      <SelectItem key={make.id} value={make.id}>{make.name}</SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+                <Input className="h-11 w-full min-w-0 text-sm" value={location} onChange={(event) => setLocation(event.target.value)} placeholder="City" aria-label="City" />
+                <Button type="submit" variant="cta" className="h-11 w-full cursor-pointer px-5 text-sm sm:col-span-2 lg:col-span-1 lg:w-full">
+                  <Search className="size-4" /> Search
+                </Button>
+              </form>
+              <div className="mt-5 grid gap-3 sm:grid-cols-3">
+                {benefits.map((item) => (
+                  <Link
+                    key={item.title}
+                    to={item.href}
+                    className="cursor-pointer overflow-hidden rounded-xl border border-border transition-colors duration-200 hover:border-primary focus-visible:ring-2 focus-visible:ring-ring focus-visible:outline-none"
+                  >
+                    {item.photo ? (
+                      <img src={assetUrl(item.photo)} alt="" className="aspect-[16/10] w-full object-cover" />
+                    ) : (
+                      <div className="flex aspect-[16/10] items-center justify-center bg-muted text-muted-foreground">
+                        <Car className="size-8" aria-hidden />
+                      </div>
+                    )}
+                    <div className="p-3">
+                      <h2 className="font-semibold text-charcoal">{item.title}</h2>
+                      <p className="mt-1 text-sm text-muted-foreground">{item.text}</p>
+                    </div>
+                  </Link>
+                ))}
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
 
       {catalog.data?.makes.length ? (
         <PageSection title="Browse by brand" action={brandAction}>
@@ -261,6 +418,17 @@ export function HomePage() {
           </div>
         </PageSection>
       </section>
+
+      <PageSection id="faq" title="Questions" description="How buying and selling works on Tchadvoiture." align="center">
+        <Accordion type="single" collapsible className="mx-auto max-w-3xl rounded-2xl border border-border bg-card px-4 sm:px-6">
+          {faqs.map((item) => (
+            <AccordionItem key={item.question} value={item.question}>
+              <AccordionTrigger>{item.question}</AccordionTrigger>
+              <AccordionContent>{item.answer}</AccordionContent>
+            </AccordionItem>
+          ))}
+        </Accordion>
+      </PageSection>
 
       <section className="hero-gradient flex flex-col gap-4 rounded-3xl px-6 py-10 text-white shadow-lg ring-1 ring-white/20 sm:flex-row sm:items-center sm:justify-between sm:px-10">
         <div>

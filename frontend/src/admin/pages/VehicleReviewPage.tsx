@@ -1,7 +1,7 @@
 import { useState } from 'react'
 import { Link, useParams } from 'react-router-dom'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
-import { Alert, AlertDescription, Badge, Button, Card, CardContent, Input, Label, Skeleton, Textarea, statusBadgeClass } from '@/components/ui'
+import { Alert, AlertDescription, Button, Card, CardContent, Input, Label, Select, SelectContent, SelectItem, SelectTrigger, SelectValue, Skeleton, Textarea } from '@/components/ui'
 import { assetUrl } from '@/lib/api'
 import { api } from '../lib/api'
 
@@ -30,11 +30,14 @@ type Vehicle = {
   seller: { id: string; name?: string; email?: string; phone?: string; dealershipName?: string }
 }
 
+const STATUSES = ['pending', 'active', 'rejected', 'inactive', 'sold']
+
 export function VehicleReviewPage() {
   const { id = '' } = useParams()
   const queryClient = useQueryClient()
   const [reason, setReason] = useState('')
   const [error, setError] = useState('')
+  const [notice, setNotice] = useState('')
   const detail = useQuery({
     queryKey: ['admin-vehicle', id],
     queryFn: () => api<{ vehicle: Vehicle; reports: { id: string; reason: string; status: string; reporterName: string }[] }>(`/api/admin/vehicles/${id}`),
@@ -44,9 +47,14 @@ export function VehicleReviewPage() {
     mutationFn: (body: { action: string; reason?: string }) => api(`/api/admin/vehicles/${id}/moderate`, { method: 'POST', body }),
     onSuccess: () => {
       setError('')
+      setNotice('Listing status updated.')
       void queryClient.invalidateQueries({ queryKey: ['admin-vehicle', id] })
+      void queryClient.invalidateQueries({ queryKey: ['admin-vehicles'] })
     },
-    onError: (err) => setError(err instanceof Error ? err.message : 'Action failed.'),
+    onError: (err) => {
+      setNotice('')
+      setError(err instanceof Error ? err.message : 'Action failed.')
+    },
   })
 
   const save = useMutation({
@@ -62,12 +70,52 @@ export function VehicleReviewPage() {
   const vehicle = detail.data?.vehicle
   if (!vehicle) return <Alert variant="destructive"><AlertDescription>Listing not found.</AlertDescription></Alert>
 
+  function changeStatus(next: string) {
+    if (!vehicle || next === vehicle.status) return
+    if (next === 'pending') {
+      setNotice('')
+      setError('The seller resubmits a rejected or inactive listing.')
+      return
+    }
+    if (next === 'rejected') {
+      const text = reason.trim()
+      if (!text) {
+        setNotice('')
+        setError('A rejection reason is required.')
+        return
+      }
+      moderate.mutate({ action: 'reject', reason: text })
+      return
+    }
+    const action = next === 'active' ? (vehicle.status === 'pending' ? 'approve' : 'activate') : next === 'inactive' ? 'deactivate' : 'sold'
+    moderate.mutate({ action })
+  }
+
   return (
     <div className="space-y-6">
-      <div className="flex flex-wrap items-center gap-3">
+      <div className="flex flex-wrap items-end justify-between gap-4">
         <h1 className="text-2xl font-bold">{vehicle.title}</h1>
-        <Badge variant="outline" className={statusBadgeClass(vehicle.status)}>{vehicle.status}</Badge>
+        <div className="flex flex-wrap items-end gap-3">
+          <div className="grid gap-1.5">
+            <Label htmlFor="listing-status">Listing status</Label>
+            <Select value={vehicle.status} disabled={moderate.isPending} onValueChange={changeStatus}>
+              <SelectTrigger id="listing-status" className="h-10 w-44 capitalize" aria-label="Listing status">
+                {moderate.isPending ? <span>Saving…</span> : <SelectValue />}
+              </SelectTrigger>
+              <SelectContent>
+                {STATUSES.map((item) => (
+                  <SelectItem key={item} value={item} className="capitalize">{item}</SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
+          <div className="grid min-w-64 gap-1.5">
+            <Label htmlFor="reject-reason">Rejection reason</Label>
+            <Input id="reject-reason" className="h-10" value={reason} onChange={(event) => setReason(event.target.value)} placeholder="Required to reject" />
+          </div>
+        </div>
       </div>
+      {notice ? <p className="text-sm font-medium text-primary">{notice}</p> : null}
       {error ? <Alert variant="destructive"><AlertDescription>{error}</AlertDescription></Alert> : null}
       {vehicle.rejectionReason ? <p className="text-sm text-red-700">Rejection reason: {vehicle.rejectionReason}</p> : null}
       <div className="flex gap-2 overflow-x-auto">
@@ -81,17 +129,6 @@ export function VehicleReviewPage() {
         {' '}· {vehicle.seller.email} · {vehicle.seller.phone}
       </p>
       <p className="text-sm">Plate: {vehicle.registrationNumber || '—'} · Policy: {vehicle.insurancePolicyNumber || '—'}</p>
-      <div className="flex flex-wrap gap-2">
-        <Button onClick={() => moderate.mutate({ action: 'approve' })}>Approve</Button>
-        <Button variant="outline" onClick={() => moderate.mutate({ action: 'activate' })}>Activate</Button>
-        <Button variant="outline" onClick={() => moderate.mutate({ action: 'deactivate' })}>Deactivate</Button>
-        <Button variant="outline" onClick={() => moderate.mutate({ action: 'sold' })}>Mark sold</Button>
-        <Button variant="destructive" onClick={() => moderate.mutate({ action: 'remove' })}>Remove</Button>
-      </div>
-      <form className="flex max-w-xl gap-2" onSubmit={(event) => { event.preventDefault(); moderate.mutate({ action: 'reject', reason }) }}>
-        <Input className="h-10" value={reason} onChange={(event) => setReason(event.target.value)} placeholder="Rejection reason" />
-        <Button type="submit" variant="destructive">Reject</Button>
-      </form>
       <form
         className="grid max-w-3xl gap-4 sm:grid-cols-2"
         onSubmit={(event) => {

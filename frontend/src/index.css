@@ -164,6 +164,16 @@ body {
   .carousel-row {
     mask-image: linear-gradient(to right, black 0%, black calc(100% - 2rem), transparent 100%);
   }
+
+  .spec-columns {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  @media (min-width: 40rem) {
+    .spec-columns {
+      grid-template-columns: 220px minmax(0, 1fr);
+    }
+  }
 }
 
 @media (prefers-reduced-motion: reduce) {

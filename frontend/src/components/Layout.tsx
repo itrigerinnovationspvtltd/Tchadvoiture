@@ -163,6 +163,7 @@ export function Layout() {
           <div>
             <p className="text-sm font-semibold text-charcoal">Company</p>
             <div className="mt-3 flex flex-col gap-2 text-sm text-muted-foreground">
+              <Link to="/#faq" className="cursor-pointer transition-colors duration-200 hover:text-primary">FAQ</Link>
               <Link to="/about" className="cursor-pointer transition-colors duration-200 hover:text-primary">About</Link>
               <Link to="/contact" className="cursor-pointer transition-colors duration-200 hover:text-primary">Contact</Link>
               <Link to="/terms" className="cursor-pointer transition-colors duration-200 hover:text-primary">Terms</Link>

@@ -25,6 +25,7 @@ export {
   TableCaption,
 } from './table'
 export { Tabs, TabsList, TabsTrigger, TabsContent } from './tabs'
+export { Accordion, AccordionItem, AccordionTrigger, AccordionContent } from './accordion'
 export { Skeleton } from './skeleton'
 export { Separator } from './separator'
 export {

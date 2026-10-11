@@ -8,6 +8,7 @@ export function PageSection({
   align = 'left',
   as = 'section',
   className,
+  id,
   children,
 }: {
   title: string
@@ -16,12 +17,13 @@ export function PageSection({
   align?: 'left' | 'center'
   as?: 'section' | 'div'
   className?: string
+  id?: string
   children?: ReactNode
 }) {
   const centered = align === 'center'
   const Comp = as
   return (
-    <Comp className={className}>
+    <Comp id={id} className={cn(id && 'scroll-mt-24', className)}>
       <div
         className={cn(
           'mb-4 flex flex-col gap-3 sm:mb-5',
