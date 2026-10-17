@@ -18,7 +18,8 @@ import {
 } from '@/components/ui'
 import { cn } from '@/lib/utils'
 import { api } from '../lib/api'
-import { adminButtonClass, adminInputClass, adminSelectTriggerClass } from '../components/adminControls'
+import { adminInputClass, adminPrimaryButtonClass, adminSelectTriggerClass } from '../components/adminControls'
+import { AdminPageHeader } from '../components/AdminPageHeader'
 import { AdminDataTable } from '../components/AdminDataTable'
 import { AdminToolbar } from '../components/AdminToolbar'
 import { TableSkeletonRows } from '../components/TableSkeletonRows'
@@ -54,7 +55,7 @@ export function CatalogPage() {
 
   return (
     <div className="space-y-8">
-      <h1 className="text-2xl font-bold">Catalog</h1>
+      <AdminPageHeader />
       <section className="grid gap-6 lg:grid-cols-2">
         <div>
           <h2 className="font-semibold">Makes and models</h2>
@@ -67,7 +68,7 @@ export function CatalogPage() {
             }}
           >
             <Input className={adminInputClass} value={makeName} onChange={(event) => setMakeName(event.target.value)} placeholder="New brand" />
-            <Button type="submit" className={cn(adminButtonClass, 'px-4')}>
+            <Button type="submit" className={cn(adminPrimaryButtonClass, 'px-4')}>
               Add
             </Button>
           </AdminToolbar>
@@ -89,7 +90,7 @@ export function CatalogPage() {
               </SelectContent>
             </Select>
             <Input className={adminInputClass} value={modelName} onChange={(event) => setModelName(event.target.value)} placeholder="New model" />
-            <Button type="submit" className={cn(adminButtonClass, 'px-4')}>
+            <Button type="submit" className={cn(adminPrimaryButtonClass, 'px-4')}>
               Add
             </Button>
           </AdminToolbar>
@@ -162,7 +163,7 @@ export function CatalogPage() {
             </div>
             <AdminToolbar>
               <Input className={adminInputClass} value={lookupName} onChange={(event) => setLookupName(event.target.value)} placeholder="Name" />
-              <Button type="submit" className={cn(adminButtonClass, 'px-4')}>
+              <Button type="submit" className={cn(adminPrimaryButtonClass, 'px-4')}>
                 Add
               </Button>
             </AdminToolbar>

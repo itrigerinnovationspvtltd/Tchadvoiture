@@ -63,6 +63,7 @@ Base URL: `http://localhost:4000` (dev). JSON unless noted. Errors: `{ "error": 
 | POST | `/refresh` | — |
 | POST | `/logout` | optional Bearer |
 | GET | `/me` | admin |
+| PATCH | `/me` | admin (`{ name }`) |
 | POST | `/change-password` | admin |
 
 ## Admin (`/api/admin`)

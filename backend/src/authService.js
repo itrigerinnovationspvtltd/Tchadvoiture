@@ -236,6 +236,15 @@ export async function logout({ refreshToken, accessToken }) {
   }
 }
 
+export async function updateAdminProfile(admin, body) {
+  if (body.name == null) throw httpError(400, 'Name is required.');
+  const name = String(body.name).trim().slice(0, 80);
+  if (!name) throw httpError(400, 'Name is required.');
+  admin.name = name;
+  await admin.save();
+  return toAuthAdmin(admin);
+}
+
 export async function updateProfile(user, body) {
   if (body.name != null) user.name = String(body.name).trim().slice(0, 80);
   if (body.phone != null) user.phone = String(body.phone).trim().slice(0, 30);

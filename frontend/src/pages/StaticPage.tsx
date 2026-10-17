@@ -1,6 +1,7 @@
 import { useLocation } from 'react-router-dom'
 import { useQuery } from '@tanstack/react-query'
-import { Alert, AlertDescription, Skeleton } from '@/components/ui'
+import { PageLoadingSkeleton } from '../components/PageLoadingSkeleton'
+import { Alert, AlertDescription } from '@/components/ui'
 import { api } from '../lib/api'
 import { errorMessage } from '../lib/format'
 
@@ -11,7 +12,7 @@ export function StaticPage() {
     queryKey: ['page', slug],
     queryFn: () => api<{ title: string; body: string }>(`/api/pages/${slug}`, { auth: false }),
   })
-  if (page.isLoading) return <div className="flex min-h-40 items-center justify-center"><Skeleton className="h-8 w-40" /></div>
+  if (page.isLoading) return <PageLoadingSkeleton variant="default" />
   if (!page.data) return <Alert variant="destructive"><AlertDescription>{errorMessage(page.error)}</AlertDescription></Alert>
   return (
     <article className="mx-auto max-w-2xl">

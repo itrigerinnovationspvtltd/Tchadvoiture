@@ -1,8 +1,11 @@
 import { Link, useParams } from 'react-router-dom'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
-import { Alert, AlertDescription, Badge, Button, Card, CardContent, Input, Label, Select, SelectContent, SelectItem, SelectTrigger, SelectValue, Skeleton, Textarea, statusBadgeClass } from '@/components/ui'
-import { api } from '../lib/api'
+import { PageLoadingSkeleton } from '../../components/PageLoadingSkeleton'
+import { Alert, AlertDescription, Badge, Button, Card, CardContent, Input, Label, Select, SelectContent, SelectItem, SelectTrigger, SelectValue, Textarea, statusBadgeClass } from '@/components/ui'
 import { useEffect, useState } from 'react'
+import { AdminPageHeader } from '../components/AdminPageHeader'
+import { adminPrimaryButtonClass } from '../components/adminControls'
+import { api } from '../lib/api'
 
 type Detail = {
   user: {
@@ -49,17 +52,22 @@ export function UserDetailPage() {
     if (detail.data) setRole(detail.data.user.role)
   }, [detail.data])
 
-  if (detail.isLoading) return <div className="flex min-h-40 items-center justify-center"><Skeleton className="h-8 w-40" /></div>
+  if (detail.isLoading) return <PageLoadingSkeleton variant="form" />
   if (!detail.data) return <Alert variant="destructive"><AlertDescription>User not found.</AlertDescription></Alert>
   const user = detail.data.user
 
   return (
     <div className="space-y-8">
-      <div className="flex flex-wrap items-center gap-3">
-        <h1 className="text-2xl font-bold">{user.name}</h1>
-        <Badge variant="outline" className={statusBadgeClass(user.status)}>{user.status}</Badge>
-        <Badge variant="outline" className={statusBadgeClass(user.role)}>{user.role}</Badge>
-      </div>
+      <AdminPageHeader
+        title={user.name}
+        description="Account profile, listings, and enquiries."
+        actions={
+          <>
+            <Badge variant="outline" className={statusBadgeClass(user.status)}>{user.status}</Badge>
+            <Badge variant="outline" className={statusBadgeClass(user.role)}>{user.role}</Badge>
+          </>
+        }
+      />
       {error ? <Alert variant="destructive"><AlertDescription>{error}</AlertDescription></Alert> : null}
       <form
         className="grid max-w-3xl gap-4 sm:grid-cols-2"
@@ -91,7 +99,7 @@ export function UserDetailPage() {
         <div className="grid gap-1.5"><Label htmlFor="address">Address</Label><Input id="address" name="address" className="h-10" defaultValue={user.address} /></div>
         <div className="grid gap-1.5"><Label htmlFor="description">Description</Label><Textarea id="description" name="description" className="min-h-28" defaultValue={user.description} /></div>
         <div className="grid gap-1.5"><Label htmlFor="business">Business details</Label><Textarea id="business" name="businessDetails" className="min-h-28" defaultValue={user.businessDetails} /></div>
-        <div className="sm:col-span-2"><Button type="submit">Save user</Button></div>
+        <div className="sm:col-span-2"><Button type="submit" className={adminPrimaryButtonClass}>Save user</Button></div>
       </form>
       <div className="flex flex-wrap gap-2">
         <Button variant="outline" onClick={() => status.mutate('active')}>Activate</Button>
@@ -101,7 +109,7 @@ export function UserDetailPage() {
       <section>
         <h2 className="mb-2 font-semibold">Listings</h2>
         <ul className="space-y-1 text-sm">
-          {detail.data.vehicles.length === 0 ? <li className="text-neutral-600">No listings.</li> : null}
+          {detail.data.vehicles.length === 0 ? <li className="text-muted-foreground">No listings.</li> : null}
           {detail.data.vehicles.map((vehicle) => (
             <li key={vehicle.id}><Link className="text-primary" to={`/admin/vehicles/${vehicle.id}`}>{vehicle.title}</Link> · {vehicle.status}</li>
           ))}
@@ -110,10 +118,10 @@ export function UserDetailPage() {
       <section>
         <h2 className="mb-2 font-semibold">Enquiries</h2>
         <ul className="space-y-2 text-sm">
-          {detail.data.enquiries.length === 0 ? <li className="text-neutral-600">No enquiries.</li> : null}
+          {detail.data.enquiries.length === 0 ? <li className="text-muted-foreground">No enquiries.</li> : null}
           {detail.data.enquiries.map((enquiry) => (
             <li key={enquiry.id}>
-              <Card>
+              <Card className="transition-all duration-300 hover:shadow-lg">
                 <CardContent>
                   <p className="font-medium">{enquiry.vehicleTitle} · {enquiry.buyerName}</p>
                   <p>{enquiry.message}</p>

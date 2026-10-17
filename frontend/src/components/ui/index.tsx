@@ -41,3 +41,4 @@ export {
   SelectValue,
 } from './select'
 export { statusBadgeClass } from './status-badge'
+export { Sheet, SheetTrigger, SheetClose, SheetContent, SheetPortal, SheetOverlay } from './sheet'

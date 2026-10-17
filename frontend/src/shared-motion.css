@@ -1,0 +1,87 @@
+@keyframes slide-in-up {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.animate-slide-in-up {
+  animation: slide-in-up 0.5s ease-out forwards;
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .interactive-card {
+    box-shadow:
+      0 4px 6px -1px rgb(0 0 0 / 0.08),
+      0 2px 4px -2px rgb(0 0 0 / 0.06);
+    transition:
+      box-shadow 0.3s ease,
+      transform 0.3s ease;
+  }
+
+  .interactive-card:hover {
+    box-shadow:
+      0 20px 25px -5px rgb(0 0 0 / 0.1),
+      0 8px 10px -6px rgb(0 0 0 / 0.08);
+    transform: translateY(-2px);
+  }
+
+  .interactive-card-press:active {
+    transform: translateY(0) scale(0.99);
+  }
+
+  .interactive-tile:hover {
+    transform: scale(1.02);
+  }
+
+  .btn-lift {
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+  }
+
+  .btn-lift:hover {
+    transform: scale(1.03);
+    box-shadow: 0 10px 25px -5px color-mix(in oklch, var(--primary) 30%, transparent);
+  }
+}
+
+@keyframes skeleton-shimmer {
+  from {
+    transform: translateX(-100%);
+  }
+  to {
+    transform: translateX(100%);
+  }
+}
+
+[data-slot="skeleton"] {
+  position: relative;
+  overflow: hidden;
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  [data-slot="skeleton"]::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    transform: translateX(-100%);
+    background: linear-gradient(
+      90deg,
+      transparent,
+      color-mix(in oklch, var(--background) 65%, white),
+      transparent
+    );
+    animation: skeleton-shimmer 1.5s ease-in-out infinite;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .animate-slide-in-up {
+    animation: none;
+    opacity: 1;
+    transform: none;
+  }
+}

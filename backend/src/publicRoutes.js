@@ -25,7 +25,7 @@ publicRouter.get('/catalog', async (_req, res, next) => {
 publicRouter.get('/pages/:slug', async (req, res, next) => {
   try {
     const page = await Page.findOne({ slug: req.params.slug });
-    if (!page || !['about', 'contact', 'terms'].includes(page.slug)) throw httpError(404, 'Page not found.');
+    if (!page || !['about', 'contact', 'terms', 'privacy'].includes(page.slug)) throw httpError(404, 'Page not found.');
     res.json({ slug: page.slug, title: page.title, body: page.body });
   } catch (err) {
     next(err);

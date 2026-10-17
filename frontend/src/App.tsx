@@ -1,7 +1,8 @@
 import { lazy, Suspense } from 'react'
 import { Navigate, Outlet, Route, Routes, useLocation } from 'react-router-dom'
 import { Layout } from './components/Layout'
-import { Skeleton } from '@/components/ui'
+import { PageLoadingSkeleton } from './components/PageLoadingSkeleton'
+import { ScrollToTop } from './components/ScrollToTop'
 import { useAuth } from './lib/auth'
 import { AccountPage } from './pages/AccountPage'
 import { BrowsePage } from './pages/BrowsePage'
@@ -14,7 +15,11 @@ import { MyListingsPage } from './pages/MyListingsPage'
 import { NotificationsPage } from './pages/NotificationsPage'
 import { SellerPage } from './pages/SellerPage'
 import { SignupPage } from './pages/SignupPage'
-import { StaticPage } from './pages/StaticPage'
+import { AboutPage } from './pages/AboutPage'
+import { ContactPage } from './pages/ContactPage'
+import { FaqPage } from './pages/FaqPage'
+import { PrivacyPage } from './pages/PrivacyPage'
+import { TermsPage } from './pages/TermsPage'
 import { VehiclePage } from './pages/VehiclePage'
 import { VehicleSpecsPage } from './pages/VehicleSpecsPage'
 import { WishlistPage } from './pages/WishlistPage'
@@ -24,7 +29,7 @@ const AdminApp = lazy(() => import('./admin/AdminApp.tsx'))
 function RequireAuth() {
   const { user, ready } = useAuth()
   const location = useLocation()
-  if (!ready) return <div className="flex min-h-40 items-center justify-center"><Skeleton className="h-8 w-40" /></div>
+  if (!ready) return <PageLoadingSkeleton variant="default" />
   if (!user) return <Navigate to={`/login?next=${encodeURIComponent(location.pathname)}`} replace />
   return <Outlet />
 }
@@ -32,7 +37,7 @@ function RequireAuth() {
 function RequireSeller() {
   const { user, ready } = useAuth()
   const location = useLocation()
-  if (!ready) return <div className="flex min-h-40 items-center justify-center"><Skeleton className="h-8 w-40" /></div>
+  if (!ready) return <PageLoadingSkeleton variant="list" />
   if (!user) return <Navigate to={`/login?next=${encodeURIComponent(location.pathname)}`} replace />
   if (user.role === 'buyer') return <Navigate to="/" replace />
   return <Outlet />
@@ -40,11 +45,13 @@ function RequireSeller() {
 
 export default function App() {
   return (
-    <Routes>
+    <>
+      <ScrollToTop />
+      <Routes>
       <Route
         path="/admin/*"
         element={
-          <Suspense fallback={<div className="flex min-h-40 items-center justify-center"><Skeleton className="h-8 w-40" /></div>}>
+          <Suspense fallback={<PageLoadingSkeleton variant="admin" />}>
             <AdminApp />
           </Suspense>
         }
@@ -58,9 +65,11 @@ export default function App() {
         <Route path="/sellers/:id" element={<SellerPage />} />
         <Route path="/login" element={<LoginPage />} />
         <Route path="/signup" element={<SignupPage />} />
-        <Route path="/about" element={<StaticPage />} />
-        <Route path="/contact" element={<StaticPage />} />
-        <Route path="/terms" element={<StaticPage />} />
+        <Route path="/about" element={<AboutPage />} />
+        <Route path="/contact" element={<ContactPage />} />
+        <Route path="/terms" element={<TermsPage />} />
+        <Route path="/privacy" element={<PrivacyPage />} />
+        <Route path="/faq" element={<FaqPage />} />
         <Route element={<RequireAuth />}>
           <Route path="/account" element={<AccountPage />} />
           <Route path="/wishlist" element={<WishlistPage />} />
@@ -74,5 +83,6 @@ export default function App() {
         </Route>
       </Route>
     </Routes>
+    </>
   )
 }

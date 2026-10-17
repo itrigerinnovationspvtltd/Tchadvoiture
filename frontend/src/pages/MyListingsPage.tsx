@@ -1,6 +1,9 @@
 import { Link } from 'react-router-dom'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
-import { Badge, Button, Card, CardContent, Skeleton, statusBadgeClass } from '@/components/ui'
+import { PageLoadingSkeleton } from '../components/PageLoadingSkeleton'
+import { Badge, Button, Card, CardContent, statusBadgeClass } from '@/components/ui'
+import { interactiveCardClass } from '@/lib/motion'
+import { cn } from '@/lib/utils'
 import { api, assetUrl } from '../lib/api'
 import { formatPrice } from '../lib/format'
 import { useSettings } from '../lib/hooks'
@@ -24,7 +27,7 @@ export function MyListingsPage() {
     action.mutate({ id, name })
   }
 
-  if (listings.isLoading) return <div className="flex min-h-40 items-center justify-center"><Skeleton className="h-8 w-40" /></div>
+  if (listings.isLoading) return <PageLoadingSkeleton variant="list" />
   const vehicles = listings.data?.vehicles ?? []
   const counted = vehicles.filter((vehicle) => vehicle.status === 'pending' || vehicle.status === 'active').length
 
@@ -43,7 +46,7 @@ export function MyListingsPage() {
       <div className="mt-6 space-y-4">
         {vehicles.length === 0 ? <p className="rounded-2xl border border-dashed border-border px-4 py-10 text-center text-muted-foreground">You have not listed a car yet.</p> : null}
         {vehicles.map((vehicle) => (
-          <Card key={vehicle.id} className="sm:flex-row">
+          <Card key={vehicle.id} className={cn('sm:flex-row', interactiveCardClass)}>
             {vehicle.images[0] ? <img src={assetUrl(vehicle.images[0].url)} alt={vehicle.title} className="h-28 w-full object-cover sm:w-40" /> : <div className="h-28 bg-muted sm:w-40" />}
             <CardContent className="flex-1">
               <div className="flex flex-wrap items-center gap-2">

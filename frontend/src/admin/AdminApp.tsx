@@ -1,6 +1,7 @@
+import './admin-theme.css'
 import { Navigate, Route, Routes } from 'react-router-dom'
 import { Shell } from './components/Shell'
-import { Skeleton } from '@/components/ui'
+import { PageLoadingSkeleton } from '../components/PageLoadingSkeleton'
 import { AuthProvider, useAuth } from './lib/auth'
 import { CatalogPage } from './pages/CatalogPage'
 import { ContentPage } from './pages/ContentPage'
@@ -16,7 +17,7 @@ import { VehiclesPage } from './pages/VehiclesPage'
 
 function Guard() {
   const { admin, ready } = useAuth()
-  if (!ready) return <div className="flex min-h-40 items-center justify-center"><Skeleton className="h-8 w-40" /></div>
+  if (!ready) return <PageLoadingSkeleton variant="admin" />
   if (!admin) return <Navigate to="/admin/login" replace />
   return <Shell />
 }

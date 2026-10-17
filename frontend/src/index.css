@@ -1,6 +1,7 @@
 @import "tailwindcss";
 @import "tw-animate-css";
 @import "shadcn/tailwind.css";
+@import "./shared-motion.css";
 
 @custom-variant dark (&:is(.dark *));
 
@@ -157,22 +158,26 @@ body {
     background: linear-gradient(135deg, var(--primary) 0%, oklch(0.42 0.16 264) 50%, var(--primary) 100%);
   }
 
+  .home-hero-overlay {
+    isolation: isolate;
+  }
+
+  .footer-watermark {
+    font-size: clamp(4rem, 18vw, 11rem);
+    font-weight: 800;
+    line-height: 0.85;
+    letter-spacing: -0.04em;
+    text-align: center;
+    color: oklch(1 0 0 / 0.04);
+    padding-bottom: 0.15em;
+  }
+
   .section-tint {
     @apply bg-secondary/80;
   }
 
   .carousel-row {
     mask-image: linear-gradient(to right, black 0%, black calc(100% - 2rem), transparent 100%);
-  }
-
-  .spec-columns {
-    grid-template-columns: minmax(0, 1fr);
-  }
-
-  @media (min-width: 40rem) {
-    .spec-columns {
-      grid-template-columns: 220px minmax(0, 1fr);
-    }
   }
 }
 

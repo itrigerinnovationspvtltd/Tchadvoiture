@@ -2,8 +2,10 @@ import { useEffect, useState } from 'react'
 import { Link, useNavigate, useParams } from 'react-router-dom'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { Calendar, ChevronRight, Fuel, Gauge, Heart, Share2 } from 'lucide-react'
+import { interactiveCardClass } from '@/lib/motion'
 import { cn } from '@/lib/utils'
-import { Alert, AlertDescription, Badge, Button, Card, CardContent, CardDescription, CardHeader, CardTitle, Skeleton, Textarea, statusBadgeClass } from '@/components/ui'
+import { PageLoadingSkeleton } from '../components/PageLoadingSkeleton'
+import { Alert, AlertDescription, Badge, Button, Card, CardContent, CardDescription, CardHeader, CardTitle, Textarea, statusBadgeClass } from '@/components/ui'
 import { api, assetUrl } from '../lib/api'
 import { useAuth } from '../lib/auth'
 import { errorMessage, formatKm, formatPrice, sellerLabel } from '../lib/format'
@@ -99,7 +101,7 @@ export function VehiclePage() {
     setCopied(true)
   }
 
-  if (listing.isLoading) return <div className="flex min-h-40 items-center justify-center"><Skeleton className="h-8 w-40" /></div>
+  if (listing.isLoading) return <PageLoadingSkeleton variant="vehicle-gallery" />
   if (!vehicle) return <Alert variant="destructive"><AlertDescription>{errorMessage(listing.error) || 'Listing not found.'}</AlertDescription></Alert>
 
   const sellerName = sellerLabel(vehicle.sellerRole, vehicle.seller)
@@ -215,7 +217,7 @@ export function VehiclePage() {
       </section>
 
       <div className="mt-8 grid gap-4 lg:grid-cols-[1fr_1fr]">
-        <Card>
+        <Card className={interactiveCardClass}>
           <CardContent>
             <p className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">{vehicle.sellerRole === 'dealer' ? 'Dealer' : 'Individual seller'}</p>
             <Link to={`/sellers/${vehicle.seller.id}`} className="mt-1 block text-lg font-bold text-charcoal hover:text-primary">{sellerName}</Link>
@@ -237,7 +239,7 @@ export function VehiclePage() {
             </div>
           </CardContent>
         </Card>
-        <Card id="enquiry">
+        <Card id="enquiry" className={interactiveCardClass}>
           <CardHeader>
             <CardTitle className="text-lg font-bold text-charcoal">Send an enquiry</CardTitle>
             <CardDescription>The seller’s phone stays private. They will see your name and phone from your account.</CardDescription>
@@ -262,7 +264,7 @@ export function VehiclePage() {
           </CardContent>
         </Card>
         {reportOpen ? (
-          <Card className="lg:col-span-2">
+          <Card className={cn('lg:col-span-2', interactiveCardClass)}>
             <CardHeader>
               <CardTitle className="text-lg font-bold text-charcoal">Report this listing</CardTitle>
             </CardHeader>

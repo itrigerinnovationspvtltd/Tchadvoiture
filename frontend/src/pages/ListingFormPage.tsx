@@ -3,7 +3,8 @@ import { useNavigate, useParams } from 'react-router-dom'
 import { useMutation, useQuery } from '@tanstack/react-query'
 import { Car, Check, ClipboardCheck, ImagePlus, Images, SlidersHorizontal } from 'lucide-react'
 import { z } from 'zod'
-import { Alert, AlertDescription, Button, Card, CardContent, Checkbox, Input, Label, Select, SelectContent, SelectItem, SelectTrigger, SelectValue, Skeleton, Textarea } from '@/components/ui'
+import { PageLoadingSkeleton } from '../components/PageLoadingSkeleton'
+import { Alert, AlertDescription, Button, Card, CardContent, Checkbox, Input, Label, Select, SelectContent, SelectItem, SelectTrigger, SelectValue, Textarea } from '@/components/ui'
 import { cn } from '@/lib/utils'
 
 const ANY = '__any__'
@@ -209,11 +210,7 @@ export function ListingFormPage() {
   })
 
   if (catalog.isLoading || existing.isLoading) {
-    return (
-      <div className="flex min-h-40 items-center justify-center">
-        <Skeleton className="h-8 w-40" />
-      </div>
-    )
+    return <PageLoadingSkeleton variant="form" />
   }
 
   return (

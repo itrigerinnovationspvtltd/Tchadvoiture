@@ -20,9 +20,10 @@ import {
 } from '@/components/ui'
 import { cn } from '@/lib/utils'
 import { api } from '../lib/api'
-import { adminButtonClass, adminInputClass, adminSelectTriggerClass } from '../components/adminControls'
+import { adminButtonClass, adminInputClass, adminPrimaryButtonClass, adminSelectTriggerClass } from '../components/adminControls'
 import { AdminDataTable } from '../components/AdminDataTable'
 import { AdminPageHeader } from '../components/AdminPageHeader'
+import { AdminPagination } from '../components/AdminPagination'
 import { AdminToolbar } from '../components/AdminToolbar'
 import { TableSkeletonRows } from '../components/TableSkeletonRows'
 
@@ -74,6 +75,7 @@ export function VehiclesPage() {
     const next = new URLSearchParams(params)
     if (value) next.set(key, value)
     else next.delete(key)
+    if (key !== 'page') next.delete('page')
     setParams(next)
   }
 
@@ -113,7 +115,7 @@ export function VehiclesPage() {
           onChange={(event) => setQ(event.target.value)}
           placeholder="Search"
         />
-        <Button type="submit" variant="secondary" className={cn(adminButtonClass, 'bg-charcoal px-4 text-white hover:bg-black')}>
+        <Button type="submit" className={cn(adminPrimaryButtonClass, 'px-4')}>
           Search
         </Button>
         <Button
@@ -167,6 +169,7 @@ export function VehiclesPage() {
         </TableBody>
       </Table>
       </AdminDataTable>
+      {vehicles.data ? <AdminPagination page={vehicles.data.page} pages={vehicles.data.pages} total={vehicles.data.total} /> : null}
     </div>
   )
 }

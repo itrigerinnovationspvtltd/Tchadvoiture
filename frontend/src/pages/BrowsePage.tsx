@@ -18,11 +18,13 @@ import {
   User,
   Users,
   Settings2,
+  X,
 } from 'lucide-react'
 import { BrowseCarCard } from '../components/BrowseCarCard'
 import { Button, Checkbox, Input, Select, SelectContent, SelectItem, SelectTrigger, SelectValue, Skeleton } from '@/components/ui'
 import { api } from '../lib/api'
 import { useCatalog } from '../lib/hooks'
+import { interactiveCardClass } from '@/lib/motion'
 import { cn } from '@/lib/utils'
 import { useCompareIds } from '../lib/compare'
 import type { Paged, Vehicle } from '../lib/types'
@@ -34,9 +36,6 @@ const sorts = [
   ['km_asc', 'Lowest kilometers'],
   ['year_desc', 'Newest year'],
 ]
-
-const INTRO = 'Approved cars from dealers and private sellers across Chad. Compare compact cars for city driving, family SUVs, and pickups for longer trips, with price, mileage, and condition listed up front.'
-const INTRO_MORE = ' Every listing is reviewed before it appears here. Seller phone numbers stay private until you send an enquiry.'
 
 const priceRanges = [
   { label: 'Under 4,000,000', min: '', max: '4000000' },
@@ -70,21 +69,36 @@ function FilterSection({
   active?: boolean
   children: ReactNode
 }) {
-  const [open, setOpen] = useState(false)
+  const [open, setOpen] = useState(active)
   return (
     <details
       open={open}
       onToggle={(event) => setOpen(event.currentTarget.open)}
-      className="group border-b border-border"
+      className={cn('group rounded-xl', active && 'bg-primary/5 ring-1 ring-primary/15')}
     >
-      <summary className="flex min-h-11 cursor-pointer list-none items-center gap-3 py-3 text-sm font-medium text-charcoal [&::-webkit-details-marker]:hidden">
-        <span className="text-muted-foreground">{icon}</span>
+      <summary className="flex min-h-11 cursor-pointer list-none items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium text-charcoal transition-colors duration-200 hover:bg-secondary/60 [&::-webkit-details-marker]:hidden">
+        <span className={cn('text-muted-foreground', active && 'text-primary')}>{icon}</span>
         <span className="flex-1">{title}</span>
-        {active ? <span className="size-1.5 rounded-full bg-primary" aria-hidden /> : null}
+        {active ? <span className="rounded-full bg-primary/15 px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wide text-primary">On</span> : null}
         <ChevronDown className="size-4 text-muted-foreground transition-transform duration-200 group-open:rotate-180" />
       </summary>
-      <div className="pb-4">{children}</div>
+      <div className="px-3 pb-3 pt-1">{children}</div>
     </details>
+  )
+}
+
+type FilterChip = { id: string; label: string; clear: () => void }
+
+function FilterChipButton({ chip }: { chip: FilterChip }) {
+  return (
+    <button
+      type="button"
+      onClick={chip.clear}
+      className="inline-flex shrink-0 cursor-pointer items-center gap-1.5 rounded-full bg-primary/10 px-3 py-1.5 text-sm font-medium text-primary transition-colors duration-200 hover:bg-primary/15 focus-visible:ring-2 focus-visible:ring-ring focus-visible:outline-none"
+    >
+      {chip.label}
+      <X className="size-3.5" aria-hidden />
+    </button>
   )
 }
 
@@ -176,7 +190,6 @@ export function BrowsePage() {
   const catalog = useCatalog()
   const [params, setParams] = useSearchParams()
   const [showFilters, setShowFilters] = useState(false)
-  const [more, setMore] = useState(false)
   const compareIds = useCompareIds()
   const query = params.toString()
   const listings = useQuery({
@@ -210,11 +223,92 @@ export function BrowsePage() {
   }
 
   const page = Number(params.get('page') || 1)
-  const hasFilters = [...params.keys()].some((key) => key !== 'page')
+  const hasFilters = [...params.keys()].some((key) => key !== 'page' && key !== 'sort')
+
+  const filterChips = useMemo(() => {
+    const chips: FilterChip[] = []
+    const q = params.get('q')
+    if (q?.trim()) {
+      chips.push({ id: 'q', label: `“${q.trim()}”`, clear: () => setParam('q', '') })
+    }
+    const make = catalog.data?.makes.find((item) => item.id === makeId)
+    if (make) {
+      chips.push({ id: 'makeId', label: make.name, clear: () => setParam('makeId', '') })
+    }
+    const modelId = params.get('modelId')
+    if (modelId && make) {
+      const model = make.models.find((item) => item.id === modelId)
+      if (model) chips.push({ id: 'modelId', label: model.name, clear: () => setParam('modelId', '') })
+    }
+    const typeId = params.get('vehicleTypeId')
+    if (typeId) {
+      const name = catalog.data?.vehicleTypes.find((item) => item.id === typeId)?.name
+      if (name) chips.push({ id: 'vehicleTypeId', label: name, clear: () => setParam('vehicleTypeId', '') })
+    }
+    const fuelId = params.get('fuelTypeId')
+    if (fuelId) {
+      const name = catalog.data?.fuels.find((item) => item.id === fuelId)?.name
+      if (name) chips.push({ id: 'fuelTypeId', label: name, clear: () => setParam('fuelTypeId', '') })
+    }
+    const transmissionId = params.get('transmissionId')
+    if (transmissionId) {
+      const name = catalog.data?.transmissions.find((item) => item.id === transmissionId)?.name
+      if (name) chips.push({ id: 'transmissionId', label: name, clear: () => setParam('transmissionId', '') })
+    }
+    const minPrice = params.get('minPrice') ?? ''
+    const maxPrice = params.get('maxPrice') ?? ''
+    if (minPrice || maxPrice) {
+      const preset = priceRanges.find((item) => item.min === minPrice && item.max === maxPrice)
+      chips.push({
+        id: 'price',
+        label: preset?.label ?? `Price ${minPrice || '0'}–${maxPrice || '∞'}`,
+        clear: () => setRange('minPrice', 'maxPrice', '', ''),
+      })
+    }
+    const minKm = params.get('minKm') ?? ''
+    const maxKm = params.get('maxKm') ?? ''
+    if (minKm || maxKm) {
+      const preset = kilometerRanges.find((item) => item.min === minKm && item.max === maxKm)
+      chips.push({
+        id: 'km',
+        label: preset?.label ?? `Km ${minKm || '0'}–${maxKm || '∞'}`,
+        clear: () => setRange('minKm', 'maxKm', '', ''),
+      })
+    }
+    const minYear = params.get('minYear') ?? ''
+    const maxYear = params.get('maxYear') ?? ''
+    if (minYear || maxYear) {
+      const preset = yearRanges.find((item) => item.min === minYear && item.max === maxYear)
+      chips.push({
+        id: 'year',
+        label: preset?.label ?? `Year ${minYear || '…'}–${maxYear || '…'}`,
+        clear: () => setRange('minYear', 'maxYear', '', ''),
+      })
+    }
+    const location = params.get('location')
+    if (location?.trim()) {
+      chips.push({ id: 'location', label: location.trim(), clear: () => setParam('location', '') })
+    }
+    const condition = params.get('condition')
+    if (condition) chips.push({ id: 'condition', label: condition, clear: () => setParam('condition', '') })
+    const sellerType = params.get('sellerType')
+    if (sellerType) {
+      chips.push({
+        id: 'sellerType',
+        label: sellerType === 'dealer' ? 'Dealer' : 'Individual',
+        clear: () => setParam('sellerType', ''),
+      })
+    }
+    const owners = params.get('owners')
+    if (owners) chips.push({ id: 'owners', label: `${owners} owner${owners === '1' ? '' : 's'}`, clear: () => setParam('owners', '') })
+    const color = params.get('color')
+    if (color?.trim()) chips.push({ id: 'color', label: color.trim(), clear: () => setParam('color', '') })
+    return chips
+  }, [params, catalog.data, makeId])
 
   function renderFilters() {
     return (
-    <div>
+    <div className="space-y-2">
       <FilterSection title="Price" icon={<CircleDollarSign className="size-4" />} active={Boolean(params.get('minPrice') || params.get('maxPrice'))}>
         <RangeChecks
           presets={priceRanges}
@@ -319,68 +413,104 @@ export function BrowsePage() {
         />
       </FilterSection>
       {hasFilters ? (
-        <Button variant="link" type="button" className="mt-2 h-11 justify-start px-0" onClick={() => setParams(new URLSearchParams())}>
-          Clear filters
+        <Button variant="link" type="button" className="mt-2 h-11 w-full justify-start rounded-lg px-3 text-primary hover:bg-primary/5" onClick={() => setParams(new URLSearchParams())}>
+          Clear all filters
         </Button>
       ) : null}
     </div>
     )
   }
 
+  const totalLabel = listings.data ? `${listings.data.total} approved car${listings.data.total === 1 ? '' : 's'}` : 'Approved listings'
+
   return (
-    <div className="lg:flex lg:h-full lg:min-h-0 lg:flex-col">
-      <header className="max-w-3xl shrink-0">
-        <h1 className="text-3xl font-bold text-charcoal">Cars for sale</h1>
-        <p className="mt-2 text-sm leading-6 text-muted-foreground">
-          {INTRO}
-          {more ? INTRO_MORE : null}
-          {' '}
-          <button
-            type="button"
-            className="cursor-pointer font-medium text-primary hover:underline focus-visible:rounded-sm focus-visible:ring-2 focus-visible:ring-ring"
-            aria-expanded={more}
-            onClick={() => setMore((value) => !value)}
-          >
-            {more ? 'less' : 'more'}
-          </button>
-        </p>
+    <div className="-mx-4 flex min-h-0 flex-1 flex-col bg-secondary/30 px-4 lg:-mx-0 lg:flex lg:h-full lg:min-h-0 lg:px-0 lg:bg-transparent">
+      <header className="shrink-0 pb-2 lg:hidden">
+        <h1 className="text-2xl font-bold tracking-tight text-charcoal">Cars for sale</h1>
+        <p className="mt-0.5 text-sm text-muted-foreground">{totalLabel}</p>
       </header>
-      <div className="mt-6 grid gap-6 lg:min-h-0 lg:flex-1 lg:grid-cols-[240px_1fr] lg:overflow-hidden">
-        <aside className="hidden min-h-0 overflow-y-auto overscroll-contain lg:block">{renderFilters()}</aside>
-        <section className="lg:flex lg:min-h-0 lg:flex-col lg:overflow-hidden">
-          <div className="mb-4 flex shrink-0 flex-col gap-3 sm:flex-row sm:items-center">
-            <div className="flex items-center gap-2">
-              <Button variant="outline" className="h-11 lg:hidden" type="button" onClick={() => setShowFilters((value) => !value)} aria-expanded={showFilters}>
-                <SlidersHorizontal className="size-4" /> Filters
-              </Button>
-              <Select value={params.get('sort') ?? 'newest'} onValueChange={(value) => setParam('sort', value)}>
-                <SelectTrigger className="h-11 rounded-full px-4 data-[size=default]:h-11" aria-label="Sort">
-                  <ArrowUpDown className="size-4" />
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent>
-                  {sorts.map(([value, label]) => <SelectItem key={value} value={value}>{label}</SelectItem>)}
-                </SelectContent>
-              </Select>
-            </div>
-            <div className="relative sm:ml-auto sm:w-72">
-              <Input
-                className="h-11 rounded-full pr-10 pl-4"
-                value={params.get('q') ?? ''}
-                placeholder="Search cars"
-                aria-label="Search cars"
-                onChange={(event) => setParam('q', event.target.value)}
-              />
-              <Search className="pointer-events-none absolute top-1/2 right-3 size-4 -translate-y-1/2 text-muted-foreground" />
-            </div>
+      <div className="grid min-h-0 flex-1 gap-4 lg:grid-cols-[240px_1fr] lg:overflow-hidden">
+        <aside className="hidden min-h-0 lg:block lg:overflow-y-auto lg:overscroll-contain lg:pr-1">
+          <div className={cn('sticky top-0 rounded-2xl bg-card p-4 ring-1 ring-border/60', interactiveCardClass)}>
+            <p className="mb-3 flex items-center gap-2 text-sm font-semibold text-charcoal">
+              <SlidersHorizontal className="size-4 text-primary" aria-hidden />
+              Filters
+            </p>
+            {renderFilters()}
           </div>
-          <p className="mb-3 shrink-0 text-sm text-muted-foreground">{listings.data ? `${listings.data.total} cars` : 'Approved listings'}</p>
-          {showFilters ? <div className="mb-4 rounded-xl border border-border bg-card px-4 lg:hidden">{renderFilters()}</div> : null}
-          <div className={cn('lg:min-h-0 lg:flex-1 lg:overflow-y-auto lg:overscroll-contain lg:pr-1', compareIds.length ? 'pb-24' : 'lg:pb-4')}>
+        </aside>
+        <section className="flex min-h-0 min-w-0 flex-1 flex-col lg:overflow-hidden">
+          <div
+            data-scroll-root
+            className={cn(
+              'min-h-0 flex-1 lg:overflow-y-auto lg:overscroll-contain lg:pr-1',
+              compareIds.length ? 'pb-24' : 'lg:pb-4',
+            )}
+          >
+            <div className={cn('sticky top-16 z-20 shrink-0 rounded-2xl bg-card p-3 ring-1 ring-border/60 backdrop-blur-sm lg:top-0 lg:mb-1', interactiveCardClass)}>
+              <div className="flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">
+                <div className="hidden min-w-0 shrink-0 lg:block lg:pr-4">
+                  <h1 className="text-xl font-bold tracking-tight text-charcoal">Cars for sale</h1>
+                  <p className="mt-0.5 text-sm text-muted-foreground">{totalLabel}</p>
+                </div>
+                <div className="flex min-w-0 flex-1 flex-col gap-3 sm:flex-row sm:items-center lg:max-w-2xl lg:flex-initial lg:justify-end">
+                  <div className="relative min-w-0 flex-1">
+                    <Search className="pointer-events-none absolute top-1/2 left-4 size-4 -translate-y-1/2 text-muted-foreground" />
+                    <Input
+                      className="h-11 rounded-full border-border bg-secondary/40 pl-11 pr-4"
+                      value={params.get('q') ?? ''}
+                      placeholder="Search make, model, or city"
+                      aria-label="Search cars"
+                      onChange={(event) => setParam('q', event.target.value)}
+                    />
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <Button
+                      variant="outline"
+                      className="h-11 shrink-0 rounded-full lg:hidden"
+                      type="button"
+                      onClick={() => setShowFilters((value) => !value)}
+                      aria-expanded={showFilters}
+                    >
+                      <SlidersHorizontal className="size-4" /> Filters
+                    </Button>
+                    <Select value={params.get('sort') ?? 'newest'} onValueChange={(value) => setParam('sort', value === 'newest' ? '' : value)}>
+                      <SelectTrigger className="h-11 w-full min-w-[11rem] rounded-full border-border bg-secondary/40 px-4 data-[size=default]:h-11 sm:w-auto" aria-label="Sort">
+                        <ArrowUpDown className="size-4 shrink-0 text-primary" />
+                        <SelectValue />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {sorts.map(([value, label]) => <SelectItem key={value} value={value}>{label}</SelectItem>)}
+                      </SelectContent>
+                    </Select>
+                  </div>
+                </div>
+              </div>
+              {filterChips.length ? (
+                <div className="mt-3 flex gap-2 overflow-x-auto pb-1">
+                  {filterChips.map((chip) => (
+                    <FilterChipButton key={chip.id} chip={chip} />
+                  ))}
+                  <button
+                    type="button"
+                    onClick={() => setParams(new URLSearchParams())}
+                    className="shrink-0 cursor-pointer rounded-full px-3 py-1.5 text-sm font-medium text-muted-foreground transition-colors duration-200 hover:text-primary"
+                  >
+                    Clear all
+                  </button>
+                </div>
+              ) : null}
+            </div>
+            {showFilters ? (
+              <div className={cn('mt-3 max-h-[min(70vh,520px)] overflow-y-auto rounded-2xl bg-card p-4 ring-1 ring-border lg:hidden', interactiveCardClass)}>
+                {renderFilters()}
+              </div>
+            ) : null}
+            <div className="pt-4">
           {listings.isLoading ? (
-            <div className="space-y-4">
+            <div className="space-y-5">
               {Array.from({ length: 4 }, (_, index) => (
-                <div key={index} className="rounded-xl border border-border bg-card p-4">
+                <div key={index} className="rounded-2xl bg-card p-4 ring-1 ring-border/60">
                   <div className="flex flex-col gap-4 md:flex-row">
                     <Skeleton className="aspect-[16/10] w-full shrink-0 rounded-xl md:w-72" />
                     <div className="flex flex-1 flex-col gap-3">
@@ -396,18 +526,26 @@ export function BrowsePage() {
             </div>
           ) : null}
           {listings.data && listings.data.items.length === 0 ? (
-            <p className="rounded-2xl border border-dashed border-border bg-card px-4 py-12 text-center text-muted-foreground">No cars match these filters.</p>
+            <div className="rounded-2xl bg-card px-6 py-14 text-center ring-1 ring-border">
+              <p className="text-muted-foreground">No cars match these filters.</p>
+              {hasFilters ? (
+                <Button type="button" className="mt-4 cursor-pointer rounded-full" onClick={() => setParams(new URLSearchParams())}>
+                  Clear filters
+                </Button>
+              ) : null}
+            </div>
           ) : null}
-          <div className="space-y-4">
+          <div className="space-y-5">
             {listings.data?.items?.map((vehicle) => <BrowseCarCard key={vehicle.id} vehicle={vehicle} />)}
           </div>
           {listings.data && listings.data.pages > 1 ? (
-            <div className="mt-6 flex items-center justify-center gap-3">
-              <Button variant="outline" className="h-11" disabled={page <= 1} type="button" onClick={() => setParam('page', String(page - 1))}>Previous</Button>
-              <span className="text-sm">Page {page} of {listings.data.pages}</span>
-              <Button variant="outline" className="h-11" disabled={page >= listings.data.pages} type="button" onClick={() => setParam('page', String(page + 1))}>Next</Button>
+            <div className="mt-8 flex items-center justify-center gap-3">
+              <Button variant="outline" className="h-11 rounded-full" disabled={page <= 1} type="button" onClick={() => setParam('page', String(page - 1))}>Previous</Button>
+              <span className="text-sm text-muted-foreground">Page {page} of {listings.data.pages}</span>
+              <Button variant="outline" className="h-11 rounded-full" disabled={page >= listings.data.pages} type="button" onClick={() => setParam('page', String(page + 1))}>Next</Button>
             </div>
           ) : null}
+            </div>
           </div>
         </section>
       </div>

@@ -5,6 +5,8 @@ import { z } from 'zod'
 import { Alert, AlertDescription, Button, Input, Label, Textarea } from '@/components/ui'
 import { api } from '../lib/api'
 import { useAuth } from '../lib/auth'
+import { btnLiftClass, interactiveCardClass } from '@/lib/motion'
+import { cn } from '@/lib/utils'
 import { errorMessage } from '../lib/format'
 import type { User } from '../lib/types'
 
@@ -54,7 +56,7 @@ export function AccountPage() {
       {message ? <p className="rounded-lg bg-emerald-50 px-3 py-2 text-sm text-emerald-800">{message}</p> : null}
       {error ? <Alert variant="destructive"><AlertDescription>{error}</AlertDescription></Alert> : null}
       <form
-        className="space-y-4"
+        className={cn('animate-slide-in-up space-y-4 rounded-2xl bg-card p-6 ring-1 ring-border/60', interactiveCardClass)}
         onSubmit={(event) => {
           event.preventDefault()
           const formData = new FormData(event.currentTarget)
@@ -72,7 +74,7 @@ export function AccountPage() {
             <div className="grid gap-1.5"><Label htmlFor="business">Business details</Label><Textarea id="business" name="businessDetails" className="min-h-28" defaultValue={user.businessDetails} /></div>
           </>
         ) : null}
-        <Button type="submit" disabled={save.isPending}>Save profile</Button>
+        <Button type="submit" disabled={save.isPending} className={btnLiftClass}>Save profile</Button>
       </form>
       <div className="grid gap-4 sm:grid-cols-2">
         <div className="grid gap-1.5">
@@ -87,7 +89,7 @@ export function AccountPage() {
         ) : null}
       </div>
       <form
-        className="space-y-4 border-t border-neutral-200 pt-6"
+        className={cn('animate-slide-in-up space-y-4 rounded-2xl bg-card p-6 ring-1 ring-border/60', interactiveCardClass)}
         onSubmit={passwordForm.handleSubmit(async (values) => {
           const parsed = passwordSchema.safeParse(values)
           if (!parsed.success) {
@@ -106,7 +108,7 @@ export function AccountPage() {
         <h2 className="text-xl font-bold">Change password</h2>
         <div className="grid gap-1.5"><Label htmlFor="current-password">Current password</Label><Input id="current-password" className="h-10" type="password" {...passwordForm.register('currentPassword')} /></div>
         <div className="grid gap-1.5"><Label htmlFor="new-password">New password</Label><Input id="new-password" className="h-10" type="password" {...passwordForm.register('newPassword')} /></div>
-        <Button type="submit" variant="secondary" className="h-10 bg-charcoal text-white hover:bg-black">Update password</Button>
+        <Button type="submit" className={cn('h-10', btnLiftClass)}>Update password</Button>
       </form>
     </div>
   )

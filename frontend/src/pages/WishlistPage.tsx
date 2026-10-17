@@ -1,6 +1,7 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { CarCard } from '../components/CarCard'
-import { Button, Skeleton } from '@/components/ui'
+import { PageLoadingSkeleton } from '../components/PageLoadingSkeleton'
+import { Button } from '@/components/ui'
 import { api } from '../lib/api'
 import type { Vehicle } from '../lib/types'
 
@@ -15,7 +16,7 @@ export function WishlistPage() {
     onSuccess: () => queryClient.invalidateQueries({ queryKey: ['wishlist'] }),
   })
 
-  if (wishlist.isLoading) return <div className="flex min-h-40 items-center justify-center"><Skeleton className="h-8 w-40" /></div>
+  if (wishlist.isLoading) return <PageLoadingSkeleton variant="cards" />
   const vehicles = wishlist.data?.vehicles ?? []
 
   return (

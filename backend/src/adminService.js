@@ -36,6 +36,8 @@ export async function dashboard() {
     totalListings,
     activeListings,
     pendingListings,
+    soldListings,
+    inactiveListings,
     soldOrInactive: soldListings + inactiveListings,
     totalEnquiries,
     recentUsers: recentUsers.map(toAuthUser),
@@ -442,7 +444,7 @@ export async function listPages() {
 }
 
 export async function updatePage(admin, slug, body) {
-  if (!['about', 'contact', 'terms'].includes(slug)) throw httpError(404, 'Page not found.');
+  if (!['about', 'contact', 'terms', 'privacy'].includes(slug)) throw httpError(404, 'Page not found.');
   const title = String(body.title || '').trim();
   const text = String(body.body || '').trim();
   if (!title) throw httpError(400, 'Title is required.');

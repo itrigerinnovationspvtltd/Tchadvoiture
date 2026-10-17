@@ -1,4 +1,4 @@
-import { useState, type MouseEvent } from 'react'
+import { type MouseEvent } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import { useMutation, useQueryClient } from '@tanstack/react-query'
 import { Check, Heart } from 'lucide-react'
@@ -8,6 +8,7 @@ import { useAuth } from '@/lib/auth'
 import { formatKm, formatPrice } from '@/lib/format'
 import { useSettings } from '@/lib/hooks'
 import { isRecentlyViewed } from '@/lib/recentlyViewed'
+import { btnLiftClass, interactiveCardClass } from '@/lib/motion'
 import { cn } from '@/lib/utils'
 import type { Vehicle } from '@/lib/types'
 import { VehiclePhoto } from './VehiclePhoto'
@@ -35,7 +36,7 @@ function highlights(vehicle: Vehicle) {
 
 function Stat({ value, label }: { value: string; label: string }) {
   return (
-    <div className="min-w-0">
+    <div className="min-w-0 rounded-lg bg-secondary/50 px-3 py-2">
       <p className="truncate text-sm font-semibold text-charcoal">{value}</p>
       <p className="text-xs text-muted-foreground">{label}</p>
     </div>
@@ -47,10 +48,8 @@ export function BrowseCarCard({ vehicle }: { vehicle: Vehicle }) {
   const { user } = useAuth()
   const navigate = useNavigate()
   const queryClient = useQueryClient()
-  const [photo, setPhoto] = useState(0)
-  const [recent] = useState(() => isRecentlyViewed(vehicle.id))
-  const images = vehicle.images
-  const image = images[photo]?.url ?? images[0]?.url
+  const recent = isRecentlyViewed(vehicle.id)
+  const image = vehicle.images[0]?.url
   const heading = [vehicle.modelName, vehicle.variant].filter(Boolean).join(' ') || vehicle.title
   const lines = highlights(vehicle)
   const favourite = useMutation({
@@ -66,6 +65,7 @@ export function BrowseCarCard({ vehicle }: { vehicle: Vehicle }) {
 
   function save(event: MouseEvent<HTMLButtonElement>) {
     event.preventDefault()
+    event.stopPropagation()
     if (!user) {
       navigate(`/login?next=/cars/${vehicle.id}`)
       return
@@ -74,57 +74,67 @@ export function BrowseCarCard({ vehicle }: { vehicle: Vehicle }) {
   }
 
   return (
-    <article className="rounded-xl border border-border bg-card p-4 shadow-sm transition-shadow duration-200 hover:shadow-md">
-      <div className="flex flex-col gap-4 md:flex-row">
-        <div className="relative w-full shrink-0 md:w-72">
-          {recent ? (
-            <span className="absolute top-3 left-3 z-10 rounded-md bg-charcoal px-2 py-1 text-[10px] font-semibold tracking-wider text-white">
-              RECENTLY VIEWED
-            </span>
-          ) : null}
-          <VehiclePhoto src={image} alt={vehicle.title} className="rounded-xl" />
-          {images.length > 1 ? (
-            <div className="absolute bottom-2 left-1/2 z-10 flex -translate-x-1/2">
-              {images.map((item, index) => (
-                <button
-                  key={`${item.filename}-${index}`}
-                  type="button"
-                  aria-label={`Show photo ${index + 1}`}
-                  aria-current={index === photo}
-                  className="flex size-11 items-center justify-center"
-                  onClick={() => setPhoto(index)}
-                >
-                  <span className={cn('size-2 rounded-full', index === photo ? 'bg-white' : 'bg-white/60')} />
-                </button>
-              ))}
-            </div>
-          ) : null}
+    <article className={cn('group rounded-2xl bg-card p-4 ring-1 ring-border/60 hover:ring-primary/25', interactiveCardClass)}>
+      <div className="flex flex-col gap-4 md:flex-row md:items-stretch">
+        <div className="relative flex w-full shrink-0 flex-col overflow-hidden rounded-xl ring-1 ring-border/60 md:w-72">
+          <Link
+            to={`/cars/${vehicle.id}`}
+            className="block min-h-0 flex-1 overflow-hidden"
+          >
+            <VehiclePhoto
+              src={image}
+              alt={vehicle.title}
+              className="h-full rounded-none motion-safe:transition-transform motion-safe:duration-300 motion-safe:group-hover:scale-[1.03] md:h-full"
+              aspectClassName="aspect-[16/10] md:aspect-auto md:h-full md:min-h-[11rem]"
+              fit="cover"
+            />
+          </Link>
+          <div className="absolute top-3 right-3 z-10 flex gap-1.5">
+            <Button
+              type="button"
+              variant="outline"
+              size="icon"
+              className="size-9 border-0 bg-white/95 shadow-sm hover:bg-white"
+              aria-label={vehicle.favourited ? 'Remove from wishlist' : 'Save car'}
+              disabled={favourite.isPending}
+              onClick={save}
+            >
+              <Heart className={cn('size-4', vehicle.favourited && 'fill-primary text-primary')} />
+            </Button>
+          </div>
         </div>
         <div className="flex min-w-0 flex-1 flex-col">
           <div className="flex items-start justify-between gap-3">
             <div className="min-w-0 flex-1">
-              <p className="text-sm text-muted-foreground">{vehicle.makeName}</p>
+              <div className="flex flex-wrap items-center gap-2">
+                <p className="text-xs font-medium uppercase tracking-wide text-muted-foreground">{vehicle.makeName}</p>
+                {recent ? (
+                  <span className="rounded-full border border-charcoal/15 bg-secondary/80 px-2 py-0.5 text-[10px] font-semibold tracking-wide text-charcoal">
+                    Recently viewed
+                  </span>
+                ) : null}
+              </div>
               <h3 className="text-xl font-bold text-charcoal">
-                <Link to={`/cars/${vehicle.id}`} className="cursor-pointer hover:text-primary">
+                <Link to={`/cars/${vehicle.id}`} className="cursor-pointer transition-colors duration-200 hover:text-primary">
                   {heading}
                 </Link>
               </h3>
             </div>
             <div className="shrink-0 text-right">
-              <p className="text-base font-bold whitespace-nowrap text-charcoal sm:text-lg">{formatPrice(vehicle.price, settings?.currencyLabel)}</p>
+              <p className="text-lg font-bold whitespace-nowrap text-primary sm:text-xl">{formatPrice(vehicle.price, settings?.currencyLabel)}</p>
               <p className="text-xs text-muted-foreground">{vehicle.location}</p>
             </div>
           </div>
-          <div className="mt-4 grid max-w-md grid-cols-3 gap-4">
+          <div className="mt-4 grid max-w-md grid-cols-3 gap-2">
             <Stat value={String(vehicle.manufacturingYear)} label="Year" />
             <Stat value={formatKm(vehicle.kilometers)} label="Kilometers" />
             <Stat value={vehicle.vehicleTypeName || '—'} label="Body type" />
           </div>
           {lines.length ? (
-            <ul className="mt-4 space-y-2">
+            <ul className="mt-4 space-y-1.5">
               {lines.map((line) => (
-                <li key={line} className="flex items-start gap-2 text-sm text-foreground/80">
-                  <Check className="mt-0.5 size-4 shrink-0 text-emerald-600" aria-hidden />
+                <li key={line} className="flex items-start gap-2 text-sm text-foreground/85">
+                  <Check className="mt-0.5 size-4 shrink-0 text-primary" aria-hidden />
                   <span>{line}</span>
                 </li>
               ))}
@@ -132,18 +142,7 @@ export function BrowseCarCard({ vehicle }: { vehicle: Vehicle }) {
           ) : null}
           <div className="mt-4 flex flex-col gap-2 sm:mt-auto sm:flex-row sm:items-center sm:pt-4">
             <CompareToggle id={vehicle.id} className="sm:mr-auto" />
-            <Button
-              type="button"
-              variant="outline"
-              className="h-11 sm:min-w-36"
-              aria-pressed={Boolean(vehicle.favourited)}
-              disabled={favourite.isPending}
-              onClick={save}
-            >
-              <Heart className={cn('size-4', vehicle.favourited && 'fill-primary text-primary')} />
-              {vehicle.favourited ? 'Saved' : 'Save'}
-            </Button>
-            <Button asChild className="h-11 bg-charcoal text-white hover:bg-charcoal/90 sm:min-w-40">
+            <Button asChild className={cn('h-11 cursor-pointer rounded-full sm:min-w-40', btnLiftClass)}>
               <Link to={`/cars/${vehicle.id}`}>View details</Link>
             </Button>
           </div>

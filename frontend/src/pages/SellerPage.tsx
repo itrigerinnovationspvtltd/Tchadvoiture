@@ -1,7 +1,8 @@
 import { Link, useParams } from 'react-router-dom'
 import { useQuery } from '@tanstack/react-query'
 import { CarCard } from '../components/CarCard'
-import { Alert, AlertDescription, Card, CardContent, Skeleton } from '@/components/ui'
+import { PageLoadingSkeleton } from '../components/PageLoadingSkeleton'
+import { Alert, AlertDescription, Card, CardContent } from '@/components/ui'
 import { api, assetUrl } from '../lib/api'
 import { errorMessage, sellerLabel } from '../lib/format'
 import type { PublicSeller, Vehicle } from '../lib/types'
@@ -13,7 +14,7 @@ export function SellerPage() {
     queryFn: () => api<{ seller: PublicSeller; vehicles: Vehicle[] }>(`/api/sellers/${id}`),
   })
 
-  if (profile.isLoading) return <div className="flex min-h-40 items-center justify-center"><Skeleton className="h-8 w-40" /></div>
+  if (profile.isLoading) return <PageLoadingSkeleton variant="seller" />
   if (!profile.data) return <Alert variant="destructive"><AlertDescription>{errorMessage(profile.error)}</AlertDescription></Alert>
   const { seller, vehicles } = profile.data
   const title = sellerLabel(seller.role || '', seller)

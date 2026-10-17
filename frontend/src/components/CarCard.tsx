@@ -6,6 +6,7 @@ import { api } from '@/lib/api'
 import { useAuth } from '@/lib/auth'
 import { formatKm, formatPrice, sellerLabel } from '@/lib/format'
 import { useSettings } from '@/lib/hooks'
+import { interactiveCardClass } from '@/lib/motion'
 import { cn } from '@/lib/utils'
 import type { Vehicle } from '@/lib/types'
 import { VehiclePhoto } from './VehiclePhoto'
@@ -39,7 +40,7 @@ export function CarCard({
 
   if (variant === 'showcase') {
     return (
-      <Card className="relative h-full cursor-pointer overflow-hidden p-0 shadow-sm ring-1 ring-border/50 transition-all duration-200 hover:shadow-md hover:ring-primary/25">
+      <Card className={cn('group relative h-full cursor-pointer overflow-hidden p-0 ring-1 ring-border/50 hover:ring-primary/25', interactiveCardClass)}>
         <Button
           type="button"
           variant="outline"
@@ -59,7 +60,9 @@ export function CarCard({
           <Heart className={cn('h-4 w-4', vehicle.favourited && 'fill-primary text-primary')} />
         </Button>
         <Link to={`/cars/${vehicle.id}`} className="flex h-full cursor-pointer flex-col">
-          <VehiclePhoto src={image} alt={vehicle.title} />
+          <div className="overflow-hidden">
+            <VehiclePhoto src={image} alt={vehicle.title} className="motion-safe:transition-transform motion-safe:duration-300 motion-safe:group-hover:scale-[1.03]" />
+          </div>
           <CardContent className="flex flex-1 flex-col gap-2 p-4">
             <div className="flex items-start justify-between gap-3">
               <div className="min-w-0">
@@ -84,13 +87,14 @@ export function CarCard({
   return (
     <Card
       className={cn(
-        'h-full cursor-pointer overflow-hidden p-0 shadow-sm ring-1 ring-border/50 transition-all duration-200 hover:shadow-md hover:ring-primary/25',
+        'group h-full cursor-pointer overflow-hidden p-0 ring-1 ring-border/50 hover:ring-primary/25',
+        interactiveCardClass,
         layout === 'list' ? 'flex flex-col sm:flex-row' : 'flex flex-col',
       )}
     >
       <Link to={`/cars/${vehicle.id}`} className={cn('flex flex-1 cursor-pointer', layout === 'list' ? 'flex-col sm:flex-row' : 'h-full flex-col')}>
-        <div className={cn('relative shrink-0', layout === 'list' ? 'w-full sm:w-72' : 'w-full')}>
-          <VehiclePhoto src={image} alt={vehicle.title} />
+        <div className={cn('relative shrink-0 overflow-hidden', layout === 'list' ? 'w-full sm:w-72' : 'w-full')}>
+          <VehiclePhoto src={image} alt={vehicle.title} className="motion-safe:transition-transform motion-safe:duration-300 motion-safe:group-hover:scale-[1.03]" />
           <span className="pointer-events-none absolute bottom-3 left-3 z-10 rounded-lg bg-white/95 px-2.5 py-1 text-sm font-bold text-accent shadow-sm">
             {price}
           </span>

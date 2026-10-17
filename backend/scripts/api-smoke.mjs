@@ -73,7 +73,7 @@ async function main() {
   const transmission = catalog.transmissions[0];
   const vehicleType = catalog.vehicleTypes[0];
 
-  for (const slug of ['about', 'contact', 'terms']) {
+  for (const slug of ['about', 'contact', 'terms', 'privacy']) {
     res = await request(app).get(`/api/pages/${slug}`);
     expectStatus(`GET /api/pages/${slug}`, res, 200);
   }
@@ -307,6 +307,23 @@ async function main() {
 
   res = await request(app).get('/api/admin/auth/me').set(auth(admin.accessToken));
   expectStatus('GET /api/admin/auth/me', res, 200);
+
+  res = await request(app)
+    .patch('/api/admin/auth/me')
+    .set(auth(admin.accessToken))
+    .send({ name: '  Smoke Admin  ' });
+  expectStatus('PATCH /api/admin/auth/me', res, 200);
+  if (res.body.admin?.name !== 'Smoke Admin') {
+    results.push({ name: 'PATCH /api/admin/auth/me (name trimmed)', ok: false, status: res.status });
+  } else {
+    results.push({ name: 'PATCH /api/admin/auth/me (name trimmed)', ok: true, status: res.status });
+  }
+
+  res = await request(app)
+    .patch('/api/admin/auth/me')
+    .set(auth(admin.accessToken))
+    .send({ name: '   ' });
+  expectStatus('PATCH /api/admin/auth/me (empty name)', res, 400);
 
   res = await request(app).get('/api/admin/dashboard').set(auth(admin.accessToken));
   expectStatus('GET /api/admin/dashboard', res, 200);

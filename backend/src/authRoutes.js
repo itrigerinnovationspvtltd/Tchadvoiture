@@ -10,6 +10,7 @@ import {
   signup,
   toAuthAdmin,
   toAuthUser,
+  updateAdminProfile,
   updateProfile,
   uploadAvatar,
 } from './authService.js';
@@ -125,6 +126,14 @@ adminAuth.post('/logout', async (req, res, next) => {
 
 adminAuth.get('/me', authenticateAdmin, (req, res) => {
   res.json({ admin: toAuthAdmin(req.admin) });
+});
+
+adminAuth.patch('/me', authenticateAdmin, async (req, res, next) => {
+  try {
+    res.json({ admin: await updateAdminProfile(req.admin, req.body) });
+  } catch (err) {
+    next(err);
+  }
 });
 
 adminAuth.post('/change-password', authenticateAdmin, async (req, res, next) => {

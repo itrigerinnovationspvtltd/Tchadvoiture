@@ -1,8 +1,11 @@
 import { useState } from 'react'
 import { Link, useParams } from 'react-router-dom'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
-import { Alert, AlertDescription, Button, Card, CardContent, Input, Label, Select, SelectContent, SelectItem, SelectTrigger, SelectValue, Skeleton, Textarea } from '@/components/ui'
+import { PageLoadingSkeleton } from '../../components/PageLoadingSkeleton'
+import { Alert, AlertDescription, Button, Card, CardContent, Input, Label, Select, SelectContent, SelectItem, SelectTrigger, SelectValue, Textarea } from '@/components/ui'
 import { assetUrl } from '@/lib/api'
+import { AdminPageHeader } from '../components/AdminPageHeader'
+import { adminPrimaryButtonClass } from '../components/adminControls'
 import { api } from '../lib/api'
 
 type Vehicle = {
@@ -66,7 +69,7 @@ export function VehicleReviewPage() {
     onError: (err) => setError(err instanceof Error ? err.message : 'Could not save.'),
   })
 
-  if (detail.isLoading) return <div className="flex min-h-40 items-center justify-center"><Skeleton className="h-8 w-40" /></div>
+  if (detail.isLoading) return <PageLoadingSkeleton variant="vehicle" />
   const vehicle = detail.data?.vehicle
   if (!vehicle) return <Alert variant="destructive"><AlertDescription>Listing not found.</AlertDescription></Alert>
 
@@ -93,35 +96,38 @@ export function VehicleReviewPage() {
 
   return (
     <div className="space-y-6">
-      <div className="flex flex-wrap items-end justify-between gap-4">
-        <h1 className="text-2xl font-bold">{vehicle.title}</h1>
-        <div className="flex flex-wrap items-end gap-3">
-          <div className="grid gap-1.5">
-            <Label htmlFor="listing-status">Listing status</Label>
-            <Select value={vehicle.status} disabled={moderate.isPending} onValueChange={changeStatus}>
-              <SelectTrigger id="listing-status" className="h-10 w-44 capitalize" aria-label="Listing status">
-                {moderate.isPending ? <span>Saving…</span> : <SelectValue />}
-              </SelectTrigger>
-              <SelectContent>
-                {STATUSES.map((item) => (
-                  <SelectItem key={item} value={item} className="capitalize">{item}</SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
+      <AdminPageHeader
+        title={vehicle.title}
+        description="Review photos, specs, and moderation actions."
+        actions={
+          <div className="flex flex-wrap items-end gap-3">
+            <div className="grid gap-1.5">
+              <Label htmlFor="listing-status">Listing status</Label>
+              <Select value={vehicle.status} disabled={moderate.isPending} onValueChange={changeStatus}>
+                <SelectTrigger id="listing-status" className="h-10 w-44 capitalize" aria-label="Listing status">
+                  {moderate.isPending ? <span>Saving…</span> : <SelectValue />}
+                </SelectTrigger>
+                <SelectContent>
+                  {STATUSES.map((item) => (
+                    <SelectItem key={item} value={item} className="capitalize">{item}</SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+            <div className="grid min-w-64 gap-1.5">
+              <Label htmlFor="reject-reason">Rejection reason</Label>
+              <Input id="reject-reason" className="h-10" value={reason} onChange={(event) => setReason(event.target.value)} placeholder="Required to reject" />
+            </div>
           </div>
-          <div className="grid min-w-64 gap-1.5">
-            <Label htmlFor="reject-reason">Rejection reason</Label>
-            <Input id="reject-reason" className="h-10" value={reason} onChange={(event) => setReason(event.target.value)} placeholder="Required to reject" />
-          </div>
-        </div>
-      </div>
+        }
+      />
       {notice ? <p className="text-sm font-medium text-primary">{notice}</p> : null}
       {error ? <Alert variant="destructive"><AlertDescription>{error}</AlertDescription></Alert> : null}
       {vehicle.rejectionReason ? <p className="text-sm text-red-700">Rejection reason: {vehicle.rejectionReason}</p> : null}
       <div className="flex gap-2 overflow-x-auto">
         {vehicle.images.map((image) => <img key={image.url} src={assetUrl(image.url)} alt="" className="h-28 w-40 rounded-xl object-cover" />)}
       </div>
-      <p className="text-sm text-neutral-700">
+      <p className="text-sm text-muted-foreground">
         {vehicle.makeName} {vehicle.modelName} · {vehicle.fuelName} · {vehicle.transmissionName} · {vehicle.vehicleTypeName} · {vehicle.owners} owners · {vehicle.condition}
       </p>
       <p className="text-sm">
@@ -155,14 +161,18 @@ export function VehicleReviewPage() {
         <div className="grid gap-1.5"><Label htmlFor="policy">Policy number</Label><Input id="policy" name="insurancePolicyNumber" className="h-10" defaultValue={vehicle.insurancePolicyNumber} /></div>
         <div className="grid gap-1.5"><Label htmlFor="expiry">Insurance expiry</Label><Input id="expiry" name="insuranceExpiry" className="h-10" defaultValue={vehicle.insuranceExpiry} /></div>
         <div className="grid gap-1.5 sm:col-span-2"><Label htmlFor="description">Description</Label><Textarea id="description" name="description" className="min-h-28" defaultValue={vehicle.description} /></div>
-        <Button type="submit">Save listing</Button>
+        <Button type="submit" className={adminPrimaryButtonClass}>Save listing</Button>
       </form>
       <section>
         <h2 className="font-semibold">Reports</h2>
         <ul className="mt-2 space-y-2 text-sm">
           {detail.data?.reports.length === 0 ? <li className="text-neutral-600">No reports.</li> : null}
           {detail.data?.reports.map((report) => (
-            <li key={report.id}><Card><CardContent>{report.reporterName}: {report.reason} ({report.status})</CardContent></Card></li>
+            <li key={report.id}>
+              <Card className="transition-all duration-300 hover:shadow-lg">
+                <CardContent>{report.reporterName}: {report.reason} ({report.status})</CardContent>
+              </Card>
+            </li>
           ))}
         </ul>
       </section>

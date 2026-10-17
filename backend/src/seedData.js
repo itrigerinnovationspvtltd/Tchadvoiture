@@ -39,6 +39,15 @@ const PAGES = [
     title: 'Terms',
     body: 'Listings must describe the vehicle accurately. Tchadvoiture may reject or remove listings and block accounts that break these terms. Seller phone numbers are not shown on public pages. Buyers share their contact details only when they send an enquiry.',
   },
+  {
+    slug: 'privacy',
+    title: 'Privacy',
+    body:
+      'Tchadvoiture collects account details you provide at sign-up and information you enter when listing a car or sending an enquiry.\n\n'
+      + 'Seller phone numbers and private vehicle fields such as plate and insurance numbers are not shown on public listing pages. They are visible only to the seller and administrators.\n\n'
+      + 'When you send an enquiry, the seller receives your name and phone number so they can reply. Enquiry history is available to you and the seller in the Enquiries section.\n\n'
+      + 'We use your data to operate the marketplace, moderate listings, and respond to support requests. Contact support@tchadvoiture.com for privacy questions.',
+  },
 ];
 
 export async function ensureSeed() {

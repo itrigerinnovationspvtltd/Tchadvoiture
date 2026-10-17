@@ -2,6 +2,7 @@ import { Inbox, MessageSquare, Send } from 'lucide-react'
 import { Link, useSearchParams } from 'react-router-dom'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { Alert, AlertDescription, AlertTitle, Badge, Button, Select, SelectContent, SelectItem, SelectTrigger, SelectValue, Skeleton, Tabs, TabsList, TabsTrigger, statusBadgeClass } from '@/components/ui'
+import { interactiveCardClass } from '@/lib/motion'
 import { cn } from '@/lib/utils'
 import { api } from '../lib/api'
 import { useAuth } from '../lib/auth'
@@ -119,7 +120,8 @@ function EnquiryRow({
     <li>
       <article
         className={cn(
-          'relative flex gap-3 rounded-xl bg-card p-4 ring-1 ring-foreground/10 transition-colors duration-200 sm:gap-4',
+          'relative flex gap-3 rounded-xl bg-card p-4 ring-1 ring-foreground/10 sm:gap-4',
+          interactiveCardClass,
           isNew && 'bg-primary/[0.04] ring-primary/25 before:absolute before:inset-y-3 before:left-0 before:w-1 before:rounded-r-full before:bg-primary',
         )}
       >

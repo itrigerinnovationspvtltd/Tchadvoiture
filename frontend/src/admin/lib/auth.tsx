@@ -9,6 +9,7 @@ type AuthValue = {
   ready: boolean
   login: (email: string, password: string) => Promise<void>
   logout: () => Promise<void>
+  refreshAdmin: (next?: Admin) => Promise<Admin>
 }
 
 const AuthContext = createContext<AuthValue | null>(null)
@@ -48,6 +49,15 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         await api('/api/admin/auth/logout', { method: 'POST', body: { refreshToken: localStorage.getItem('admin_refresh') } }).catch(() => {})
         clearTokens()
         setAdmin(null)
+      },
+      async refreshAdmin(next) {
+        if (next) {
+          setAdmin(next)
+          return next
+        }
+        const data = await api<{ admin: Admin }>('/api/admin/auth/me')
+        setAdmin(data.admin)
+        return data.admin
       },
     }),
     [admin, ready],
