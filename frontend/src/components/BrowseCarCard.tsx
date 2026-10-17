@@ -8,7 +8,7 @@ import { useAuth } from '@/lib/auth'
 import { formatKm, formatPrice } from '@/lib/format'
 import { useSettings } from '@/lib/hooks'
 import { isRecentlyViewed } from '@/lib/recentlyViewed'
-import { btnLiftClass, interactiveCardClass } from '@/lib/motion'
+import { btnLiftClass, interactiveCardClass, surfaceCardClass, surfaceInsetClass } from '@/lib/motion'
 import { cn } from '@/lib/utils'
 import type { Vehicle } from '@/lib/types'
 import { VehiclePhoto } from './VehiclePhoto'
@@ -36,7 +36,7 @@ function highlights(vehicle: Vehicle) {
 
 function Stat({ value, label }: { value: string; label: string }) {
   return (
-    <div className="min-w-0 rounded-lg bg-secondary/50 px-3 py-2">
+    <div className={cn('min-w-0 rounded-lg px-3 py-2', surfaceInsetClass)}>
       <p className="truncate text-sm font-semibold text-charcoal">{value}</p>
       <p className="text-xs text-muted-foreground">{label}</p>
     </div>
@@ -74,7 +74,7 @@ export function BrowseCarCard({ vehicle }: { vehicle: Vehicle }) {
   }
 
   return (
-    <article className={cn('group rounded-2xl bg-card p-4 ring-1 ring-border/60 hover:ring-primary/25', interactiveCardClass)}>
+    <article className={cn('group rounded-2xl p-4 hover:outline-primary/25', surfaceCardClass, interactiveCardClass)}>
       <div className="flex flex-col gap-4 md:flex-row md:items-stretch">
         <div className="relative flex w-full shrink-0 flex-col overflow-hidden rounded-xl ring-1 ring-border/60 md:w-72">
           <Link

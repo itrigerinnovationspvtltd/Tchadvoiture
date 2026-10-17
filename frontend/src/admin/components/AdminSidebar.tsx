@@ -36,7 +36,7 @@ export function AdminSidebar({ onLogout, pendingListings, className, onNavigate 
   return (
     <aside
       className={cn(
-        'flex h-full w-64 flex-col border-r border-border bg-card p-4',
+        'admin-sidebar flex h-full w-64 flex-col border-r border-border bg-card p-4',
         className,
       )}
     >

@@ -36,7 +36,7 @@ function ShellInner() {
         <AdminSidebar onLogout={handleLogout} pendingListings={counts.data?.pendingListings} />
       </div>
 
-      <main className="min-w-0 flex-1 p-3 md:p-4 lg:ml-64 lg:p-5">
+      <main className="admin-main min-w-0 flex-1 p-3 md:p-4 lg:ml-64 lg:p-5">
         <AdminHeader
           title={title}
           description={description}

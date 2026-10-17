@@ -5,7 +5,7 @@ import { Search } from 'lucide-react'
 import { PageLoadingSkeleton } from '../components/PageLoadingSkeleton'
 import { Alert, AlertDescription, Button, Input, Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui'
 import { VehiclePhoto } from '@/components/VehiclePhoto'
-import { interactiveCardClass } from '@/lib/motion'
+import { interactiveCardClass, surfaceCardClass, surfaceInsetClass } from '@/lib/motion'
 import { cn } from '@/lib/utils'
 import { api } from '../lib/api'
 import { useAuth } from '../lib/auth'
@@ -79,7 +79,7 @@ function matches(row: Row, query: string) {
 
 function StatTile({ value, label }: { value: string; label: string }) {
   return (
-    <div className="min-w-0 rounded-lg bg-secondary/50 px-3 py-2">
+    <div className={cn('min-w-0 rounded-lg px-3 py-2', surfaceInsetClass)}>
       <p className="truncate text-sm font-semibold text-charcoal">{value}</p>
       <p className="text-xs text-muted-foreground">{label}</p>
     </div>
@@ -88,7 +88,7 @@ function StatTile({ value, label }: { value: string; label: string }) {
 
 function SpecRows({ rows }: { rows: Row[] }) {
   return (
-    <dl className="overflow-hidden rounded-xl bg-secondary/30 ring-1 ring-border/60">
+    <dl className={cn('overflow-hidden rounded-xl', surfaceCardClass)}>
       {rows.map((row, index) => (
         <div
           key={`${row.label}-${index}`}
@@ -197,7 +197,7 @@ export function VehicleSpecsPage() {
 
   return (
     <div className="space-y-6">
-      <section className={cn('rounded-2xl bg-card p-4 ring-1 ring-border/60 sm:p-6', interactiveCardClass)}>
+      <section className={cn('rounded-2xl p-4 sm:p-6', surfaceCardClass, interactiveCardClass)}>
         <div className="flex flex-col gap-6 md:flex-row md:items-start">
           <div className="w-full shrink-0 overflow-hidden rounded-xl ring-1 ring-border/60 md:w-80 lg:w-96">
             <VehiclePhoto src={image} alt={vehicle.title} className="rounded-none" fit="cover" />
@@ -226,13 +226,13 @@ export function VehicleSpecsPage() {
         </div>
       </section>
 
-      <section className={cn('overflow-hidden rounded-2xl bg-card ring-1 ring-border/60', interactiveCardClass)} aria-labelledby="specs-workspace-heading">
+      <section className={cn('overflow-hidden rounded-2xl', surfaceCardClass, interactiveCardClass)} aria-labelledby="specs-workspace-heading">
         <h2 id="specs-workspace-heading" className="sr-only">
           Specifications and features
         </h2>
         <Tabs value={tab} onValueChange={setTab} className="w-full flex-col gap-0">
           <div className="flex flex-col gap-3 border-b border-border/60 px-4 py-3 sm:flex-row sm:items-center sm:justify-between">
-            <TabsList className="h-11 bg-secondary/40 p-1">
+            <TabsList className={cn('h-11 p-1', surfaceInsetClass)}>
               <TabsTrigger
                 value="specifications"
                 className="h-9 cursor-pointer rounded-full px-4 data-active:bg-primary data-active:text-white"

@@ -4,6 +4,7 @@ import { useMutation, useQuery } from '@tanstack/react-query'
 import { Car, Check, ClipboardCheck, ImagePlus, Images, SlidersHorizontal } from 'lucide-react'
 import { z } from 'zod'
 import { PageLoadingSkeleton } from '../components/PageLoadingSkeleton'
+import { surfaceCardClass, surfaceInsetClass } from '@/lib/motion'
 import { Alert, AlertDescription, Button, Card, CardContent, Checkbox, Input, Label, Select, SelectContent, SelectItem, SelectTrigger, SelectValue, Textarea } from '@/components/ui'
 import { cn } from '@/lib/utils'
 
@@ -328,7 +329,7 @@ export function ListingFormPage() {
           <div className="sm:col-span-2">
             <FormField label="Description"><Textarea className="min-h-28" value={draft.description} onChange={(event) => update('description', event.target.value)} /></FormField>
           </div>
-          <div className="space-y-3 rounded-xl bg-muted/50 p-4 sm:col-span-2">
+          <div className={cn('space-y-3 rounded-xl p-4 sm:col-span-2', surfaceCardClass, surfaceInsetClass)}>
             <p className="text-sm font-medium">Extra specifications</p>
             {draft.specs.map((spec, index) => (
               <div key={index} className="grid grid-cols-[1fr_1fr_auto] gap-2">
@@ -352,7 +353,7 @@ export function ListingFormPage() {
 
       {step === 2 ? (
         <div className="mt-6 space-y-4">
-          <label className="flex cursor-pointer flex-col items-center justify-center rounded-xl border border-dashed border-border bg-muted/40 px-4 py-10 text-center transition-colors duration-200 hover:border-primary hover:bg-muted focus-within:ring-2 focus-within:ring-ring">
+          <label className={cn('flex cursor-pointer flex-col items-center justify-center rounded-xl border border-dashed border-border px-4 py-10 text-center transition-colors duration-200 hover:border-primary focus-within:ring-2 focus-within:ring-ring', surfaceInsetClass)}>
             <ImagePlus className="size-8 text-muted-foreground" aria-hidden />
             <span className="mt-2 text-sm font-medium text-charcoal">Choose photos</span>
             <span className="mt-1 text-xs text-muted-foreground">JPEG, PNG, or WebP. Up to 12 images, 5 MB each.</span>

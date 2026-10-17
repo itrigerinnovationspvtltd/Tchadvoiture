@@ -72,7 +72,7 @@ body {
 
 :root {
   --primary-hover: oklch(0.22 0.1 264);
-  --background: oklch(0.97 0.012 264);
+  --background: oklch(0.985 0.004 264);
   --foreground: oklch(0.21 0.04 264);
   --card: oklch(1 0 0);
   --card-foreground: oklch(0.21 0.04 264);

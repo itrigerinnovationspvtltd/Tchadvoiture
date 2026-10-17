@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import { assetUrl } from '@/lib/api'
-import { interactiveTileClass, staggerDelay } from '@/lib/motion'
+import { interactiveTileClass, staggerDelay, surfaceCardClass, surfaceInsetClass, surfacePanelClass } from '@/lib/motion'
 import { cn } from '@/lib/utils'
 import { whyBentoItems, whyBentoPhotos, whyStats } from '@/content/homeMarketing'
 
@@ -8,7 +8,7 @@ function BentoPhoto({ src, alt, className, index = 0 }: { src: string; alt: stri
   const [broken, setBroken] = useState(false)
   return (
     <div
-      className={cn('animate-slide-in-up relative min-h-[12rem] overflow-hidden rounded-2xl bg-muted ring-1 ring-border/40', interactiveTileClass, className)}
+      className={cn('animate-slide-in-up relative min-h-[12rem] overflow-hidden rounded-2xl bg-charcoal/5', surfaceCardClass, interactiveTileClass, className)}
       {...staggerDelay(index, 100)}
     >
       {!broken ? (
@@ -30,7 +30,7 @@ function BentoPhoto({ src, alt, className, index = 0 }: { src: string; alt: stri
 function BentoTextCard({ num, title, text, className, index = 0 }: { num: string; title: string; text: string; className?: string; index?: number }) {
   return (
     <article
-      className={cn('animate-slide-in-up flex flex-col justify-between rounded-2xl bg-card p-6 ring-1 ring-border/60', interactiveTileClass, className)}
+      className={cn('animate-slide-in-up flex flex-col justify-between rounded-2xl p-6', surfaceCardClass, interactiveTileClass, className)}
       {...staggerDelay(index, 100)}
     >
       <p className="text-4xl font-bold leading-none text-charcoal/15" aria-hidden>
@@ -49,7 +49,7 @@ export function WhyBentoSection() {
   const photos = whyBentoPhotos
 
   return (
-    <section className="rounded-3xl bg-muted/30 px-5 py-10 ring-1 ring-border/40 sm:px-8 sm:py-12" aria-labelledby="why-heading">
+    <section className={cn('px-5 py-10 sm:px-8 sm:py-12', surfacePanelClass)} aria-labelledby="why-heading">
       <div className="grid gap-8 lg:grid-cols-2 lg:items-end">
         <div>
           <p className="text-xs font-semibold uppercase tracking-widest text-muted-foreground">Why Tchadvoiture</p>
@@ -81,7 +81,7 @@ export function WhyBentoSection() {
         <BentoTextCard index={6} num={items[3].num} title={items[3].title} text={items[3].text} className="lg:col-span-6" />
       </div>
 
-      <div className="mt-8 grid gap-4 rounded-2xl bg-secondary/50 px-4 py-6 sm:grid-cols-2 lg:grid-cols-4 sm:px-6">
+      <div className={cn('mt-8 grid gap-4 rounded-2xl px-4 py-6 sm:grid-cols-2 lg:grid-cols-4 sm:px-6', surfaceInsetClass, surfaceCardClass)}>
         {whyStats.map((stat) => (
           <p key={stat.label} className="text-center text-sm font-semibold text-charcoal sm:text-left">
             {stat.label}

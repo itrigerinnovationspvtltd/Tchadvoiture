@@ -14,7 +14,7 @@ export function AdminModerationProgress({
 
   return (
     <Card
-      className="animate-slide-in-up gap-0 p-6 transition-all duration-500 hover:shadow-xl"
+      className="interactive-card animate-slide-in-up gap-0 p-6 transition-all duration-500"
       style={{ animationDelay: '500ms' }}
     >
       <div className="mb-4 flex items-center justify-between">

@@ -4,7 +4,7 @@ import { ArrowRight } from 'lucide-react'
 import { Button, Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui'
 import { assetUrl } from '@/lib/api'
 import { buySteps, sellSteps, type ProcessStep } from '@/content/homeMarketing'
-import { interactiveCardClass, staggerDelay } from '@/lib/motion'
+import { interactiveCardClass, staggerDelay, surfaceCardClass, surfaceInsetClass, surfacePanelClass } from '@/lib/motion'
 import { cn } from '@/lib/utils'
 
 function ProcessCard({ step, index }: { step: ProcessStep; index: number }) {
@@ -19,7 +19,7 @@ function ProcessCard({ step, index }: { step: ProcessStep; index: number }) {
         />
       ) : null}
       <article
-        className={cn('animate-slide-in-up flex h-full flex-col overflow-hidden rounded-2xl bg-card ring-1 ring-border/60 hover:ring-primary/20', interactiveCardClass)}
+        className={cn('animate-slide-in-up flex h-full flex-col overflow-hidden rounded-2xl hover:outline-primary/20', surfaceCardClass, interactiveCardClass)}
         {...staggerDelay(index, 120)}
       >
         <div className="relative aspect-[5/4] w-full overflow-hidden bg-charcoal/5 sm:aspect-[4/3]">
@@ -83,10 +83,10 @@ export function HomeProcessSection() {
         </p>
       </div>
 
-      <div className="mt-10 overflow-hidden rounded-3xl bg-muted/30 p-5 ring-1 ring-border/40 sm:mt-12 sm:p-8">
+      <div className={cn('mt-10 overflow-hidden p-5 sm:mt-12 sm:p-8', surfacePanelClass)}>
         <Tabs defaultValue="buy" className="w-full gap-0">
           <div className="flex justify-center">
-            <TabsList className="h-12 w-full max-w-md rounded-full bg-secondary/60 p-1 sm:max-w-sm">
+            <TabsList className={cn('h-12 w-full max-w-md rounded-full p-1 sm:max-w-sm', surfaceInsetClass)}>
               <TabsTrigger
                 value="buy"
                 className="h-10 flex-1 cursor-pointer rounded-full px-4 text-sm font-semibold data-active:bg-primary data-active:text-white"

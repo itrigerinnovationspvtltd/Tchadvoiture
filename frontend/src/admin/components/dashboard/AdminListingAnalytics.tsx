@@ -13,7 +13,7 @@ export function AdminListingAnalytics({ segments }: { segments: Segment[] }) {
 
   return (
     <Card
-      className="animate-slide-in-up gap-0 bg-gradient-to-br from-background to-muted/20 p-6 transition-all duration-500 hover:shadow-xl"
+      className="interactive-card animate-slide-in-up gap-0 bg-gradient-to-br from-background to-muted/20 p-6 transition-all duration-500"
       style={{ animationDelay: '400ms' }}
     >
       <div className="mb-6 flex items-center justify-between">

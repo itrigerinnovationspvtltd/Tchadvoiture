@@ -6,7 +6,7 @@ import { api } from '@/lib/api'
 import { useAuth } from '@/lib/auth'
 import { formatKm, formatPrice, sellerLabel } from '@/lib/format'
 import { useSettings } from '@/lib/hooks'
-import { interactiveCardClass } from '@/lib/motion'
+import { interactiveCardClass, surfaceCardClass } from '@/lib/motion'
 import { cn } from '@/lib/utils'
 import type { Vehicle } from '@/lib/types'
 import { VehiclePhoto } from './VehiclePhoto'
@@ -40,7 +40,7 @@ export function CarCard({
 
   if (variant === 'showcase') {
     return (
-      <Card className={cn('group relative h-full cursor-pointer overflow-hidden p-0 ring-1 ring-border/50 hover:ring-primary/25', interactiveCardClass)}>
+      <Card className={cn('group relative h-full cursor-pointer overflow-hidden p-0 hover:outline-primary/25', surfaceCardClass, interactiveCardClass)}>
         <Button
           type="button"
           variant="outline"
@@ -87,7 +87,8 @@ export function CarCard({
   return (
     <Card
       className={cn(
-        'group h-full cursor-pointer overflow-hidden p-0 ring-1 ring-border/50 hover:ring-primary/25',
+        'group h-full cursor-pointer overflow-hidden p-0 hover:outline-primary/25',
+        surfaceCardClass,
         interactiveCardClass,
         layout === 'list' ? 'flex flex-col sm:flex-row' : 'flex flex-col',
       )}

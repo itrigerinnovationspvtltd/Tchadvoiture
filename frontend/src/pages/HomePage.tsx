@@ -13,7 +13,7 @@ import { api, assetUrl } from '../lib/api'
 import { useCatalog } from '../lib/hooks'
 import type { Paged, Vehicle } from '../lib/types'
 import { faqs } from '../content/faqs'
-import { btnLiftClass, interactiveCardClass, interactiveTileClass } from '@/lib/motion'
+import { btnLiftClass, interactiveCardClass, interactiveTileClass, surfaceCardClass } from '@/lib/motion'
 import { cn } from '@/lib/utils'
 
 function typeIcon(name: string): LucideIcon {
@@ -255,7 +255,7 @@ export function HomePage() {
           <h2 className="mt-2 text-2xl font-bold text-charcoal lg:text-3xl">Questions</h2>
           <p className="mt-2 text-sm text-muted-foreground sm:text-base">How buying and selling works on Tchadvoiture.</p>
         </div>
-        <Accordion type="single" collapsible className={cn('animate-slide-in-up mx-auto mt-8 max-w-3xl rounded-2xl bg-card px-4 ring-1 ring-border/60 sm:px-6', interactiveCardClass)}>
+        <Accordion type="single" collapsible className={cn('animate-slide-in-up mx-auto mt-8 max-w-3xl rounded-2xl px-4 sm:px-6', surfaceCardClass, interactiveCardClass)}>
           {faqs.map((item) => (
             <AccordionItem key={item.question} value={item.question}>
               <AccordionTrigger className="py-4 text-left text-base hover:no-underline sm:py-5">

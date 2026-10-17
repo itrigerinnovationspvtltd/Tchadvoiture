@@ -1,10 +1,13 @@
+import { useState } from 'react'
 import { useForm } from 'react-hook-form'
 import { Link, useNavigate, useSearchParams } from 'react-router-dom'
 import { z } from 'zod'
-import { Alert, AlertDescription, Button, Card, CardContent, CardDescription, CardHeader, CardTitle, Input, Label } from '@/components/ui'
+import { Alert, AlertDescription, Button, Input, Label } from '@/components/ui'
+import { AuthPageLayout, authFieldClass, authPrimaryButtonClass } from '../components/auth/AuthPageLayout'
 import { useAuth } from '../lib/auth'
 import { errorMessage } from '../lib/format'
-import { useState } from 'react'
+import { btnLiftClass } from '@/lib/motion'
+import { cn } from '@/lib/utils'
 
 const schema = z.object({
   email: z.string().email('Enter a valid email address.'),
@@ -21,14 +24,26 @@ export function LoginPage() {
   const form = useForm<FormValues>({ defaultValues: { email: '', password: '' } })
 
   return (
-    <Card className="mx-auto w-full max-w-md">
-      <CardHeader>
-        <CardTitle className="text-3xl font-bold text-charcoal">Log in</CardTitle>
-        <CardDescription className="text-slate-600">Use the email and password for your Tchadvoiture account.</CardDescription>
-      </CardHeader>
-      <CardContent>
+    <AuthPageLayout
+      eyebrow="Welcome back"
+      title="Log in to your account"
+      description="Access saved cars, enquiries, and your listings from one place."
+      footer={
+        <>
+          New here?{' '}
+          <Link to="/signup" className="font-semibold text-primary hover:underline">
+            Create an account
+          </Link>
+        </>
+      }
+    >
+      <div className="mb-8">
+        <h2 className="text-2xl font-bold text-charcoal">Sign in</h2>
+        <p className="mt-1 text-sm text-muted-foreground">Use your Tchadvoiture email and password.</p>
+      </div>
+
       <form
-        className="space-y-4"
+        className="space-y-5"
         onSubmit={form.handleSubmit(async (values) => {
           const parsed = schema.safeParse(values)
           if (!parsed.success) {
@@ -45,19 +60,47 @@ export function LoginPage() {
           }
         })}
       >
-        {error ? <Alert variant="destructive"><AlertDescription>{error}</AlertDescription></Alert> : null}
-        <div className="grid gap-1.5">
+        {error ? (
+          <Alert variant="destructive">
+            <AlertDescription>{error}</AlertDescription>
+          </Alert>
+        ) : null}
+        <div className="grid gap-2">
           <Label htmlFor="email">Email</Label>
-          <Input id="email" className="h-10" type="email" autoComplete="email" {...form.register('email')} />
+          <Input
+            id="email"
+            className={authFieldClass}
+            type="email"
+            autoComplete="email"
+            placeholder="you@example.com"
+            {...form.register('email')}
+          />
         </div>
-        <div className="grid gap-1.5">
+        <div className="grid gap-2">
           <Label htmlFor="password">Password</Label>
-          <Input id="password" className="h-10" type="password" autoComplete="current-password" {...form.register('password')} />
+          <Input
+            id="password"
+            className={authFieldClass}
+            type="password"
+            autoComplete="current-password"
+            placeholder="••••••••"
+            {...form.register('password')}
+          />
         </div>
-        <Button type="submit" className="h-10 w-full" disabled={form.formState.isSubmitting}>Log in</Button>
+        <Button
+          type="submit"
+          className={cn(authPrimaryButtonClass, btnLiftClass)}
+          disabled={form.formState.isSubmitting}
+        >
+          {form.formState.isSubmitting ? 'Signing in…' : 'Log in'}
+        </Button>
       </form>
-      <p className="mt-4 text-sm">New here? <Link to="/signup" className="cursor-pointer font-semibold text-primary">Create an account</Link></p>
-      </CardContent>
-    </Card>
+
+      <p className="mt-6 text-center text-xs text-muted-foreground">
+        <Link to="/cars" className="font-medium text-primary hover:underline">
+          Continue browsing without an account
+        </Link>
+      </p>
+    </AuthPageLayout>
   )
 }

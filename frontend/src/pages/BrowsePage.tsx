@@ -24,7 +24,7 @@ import { BrowseCarCard } from '../components/BrowseCarCard'
 import { Button, Checkbox, Input, Select, SelectContent, SelectItem, SelectTrigger, SelectValue, Skeleton } from '@/components/ui'
 import { api } from '../lib/api'
 import { useCatalog } from '../lib/hooks'
-import { interactiveCardClass } from '@/lib/motion'
+import { interactiveCardClass, surfaceCardClass } from '@/lib/motion'
 import { cn } from '@/lib/utils'
 import { useCompareIds } from '../lib/compare'
 import type { Paged, Vehicle } from '../lib/types'
@@ -424,14 +424,14 @@ export function BrowsePage() {
   const totalLabel = listings.data ? `${listings.data.total} approved car${listings.data.total === 1 ? '' : 's'}` : 'Approved listings'
 
   return (
-    <div className="-mx-4 flex min-h-0 flex-1 flex-col bg-secondary/30 px-4 lg:-mx-0 lg:flex lg:h-full lg:min-h-0 lg:px-0 lg:bg-transparent">
+    <div className="-mx-4 flex min-h-0 flex-1 flex-col px-4 lg:-mx-0 lg:flex lg:h-full lg:min-h-0 lg:px-0">
       <header className="shrink-0 pb-2 lg:hidden">
         <h1 className="text-2xl font-bold tracking-tight text-charcoal">Cars for sale</h1>
         <p className="mt-0.5 text-sm text-muted-foreground">{totalLabel}</p>
       </header>
       <div className="grid min-h-0 flex-1 gap-4 lg:grid-cols-[240px_1fr] lg:overflow-hidden">
         <aside className="hidden min-h-0 lg:block lg:overflow-y-auto lg:overscroll-contain lg:pr-1">
-          <div className={cn('sticky top-0 rounded-2xl bg-card p-4 ring-1 ring-border/60', interactiveCardClass)}>
+          <div className={cn('sticky top-0 rounded-2xl p-4', surfaceCardClass, interactiveCardClass)}>
             <p className="mb-3 flex items-center gap-2 text-sm font-semibold text-charcoal">
               <SlidersHorizontal className="size-4 text-primary" aria-hidden />
               Filters
@@ -447,7 +447,7 @@ export function BrowsePage() {
               compareIds.length ? 'pb-24' : 'lg:pb-4',
             )}
           >
-            <div className={cn('sticky top-16 z-20 shrink-0 rounded-2xl bg-card p-3 ring-1 ring-border/60 backdrop-blur-sm lg:top-0 lg:mb-1', interactiveCardClass)}>
+            <div className={cn('sticky top-16 z-20 shrink-0 rounded-2xl p-3 backdrop-blur-sm lg:top-0 lg:mb-1', surfaceCardClass, interactiveCardClass)}>
               <div className="flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">
                 <div className="hidden min-w-0 shrink-0 lg:block lg:pr-4">
                   <h1 className="text-xl font-bold tracking-tight text-charcoal">Cars for sale</h1>
@@ -502,7 +502,7 @@ export function BrowsePage() {
               ) : null}
             </div>
             {showFilters ? (
-              <div className={cn('mt-3 max-h-[min(70vh,520px)] overflow-y-auto rounded-2xl bg-card p-4 ring-1 ring-border lg:hidden', interactiveCardClass)}>
+              <div className={cn('mt-3 max-h-[min(70vh,520px)] overflow-y-auto rounded-2xl p-4 lg:hidden', surfaceCardClass, interactiveCardClass)}>
                 {renderFilters()}
               </div>
             ) : null}

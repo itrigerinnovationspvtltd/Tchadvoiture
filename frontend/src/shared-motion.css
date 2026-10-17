@@ -13,7 +13,43 @@
   animation: slide-in-up 0.5s ease-out forwards;
 }
 
+.surface-panel {
+  border-radius: 1.5rem;
+  background-color: var(--card);
+  box-shadow: 0 12px 40px -16px color-mix(in oklch, var(--primary) 14%, transparent);
+  outline: 1px solid color-mix(in oklch, var(--border) 85%, transparent);
+  outline-offset: -1px;
+}
+
+.surface-card {
+  background-color: var(--card);
+  box-shadow:
+    0 6px 20px -10px color-mix(in oklch, var(--primary) 10%, transparent),
+    0 2px 6px -2px rgb(0 0 0 / 0.06);
+  outline: 1px solid color-mix(in oklch, var(--border) 90%, transparent);
+  outline-offset: -1px;
+}
+
+.surface-inset {
+  background-color: color-mix(in oklch, var(--secondary) 45%, var(--card));
+}
+
 @media (prefers-reduced-motion: no-preference) {
+  .interactive-tile {
+    box-shadow:
+      0 4px 14px -6px rgb(0 0 0 / 0.08),
+      0 1px 3px -1px rgb(0 0 0 / 0.05);
+    transition:
+      box-shadow 0.3s ease,
+      transform 0.3s ease;
+  }
+
+  .interactive-tile:hover {
+    box-shadow:
+      0 16px 28px -10px rgb(0 0 0 / 0.12),
+      0 4px 8px -4px rgb(0 0 0 / 0.06);
+  }
+
   .interactive-card {
     box-shadow:
       0 4px 6px -1px rgb(0 0 0 / 0.08),
